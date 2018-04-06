@@ -2,7 +2,7 @@
 
 sudo apt-get install git build-essential gcc pkg-config cmake python python-six -y
 
-sudo rm -rvfl opc-ua-c
+sudo rm -rvf opc-ua-c
 
 git clone https://github.com/marktomm/open62541.git opc-ua-c
 cd opc-ua-c
