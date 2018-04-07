@@ -2,11 +2,49 @@
 
 #include <signal.h>
 
-#define MARTEM_NS 2
-#define DI_FxS_ID 6021
-#define DO_FxC_ID 6031
-#define DI_FxD_ID 6041
-#define DO_FxD_ID 6051
+#define MARTEM_NS 1
+
+// Rules
+
+// EXAMPLES OF METHOD DEFS FROM lcbc_feeder1.c
+/* Rule1 - ns=1;i=7001 */
+static UA_StatusCode EXAMPLE_function_lcbc_feeder1_2_begin(UA_Server *server, UA_UInt16* ns) 
+{
+
+    UA_StatusCode retVal = UA_STATUSCODE_GOOD;
+    UA_MethodAttributes attr = UA_MethodAttributes_default;
+    attr.executable = true;
+    attr.userExecutable = true;
+    attr.displayName = UA_LOCALIZEDTEXT("", "Rule1");
+    attr.description = UA_LOCALIZEDTEXT("", "");
+    attr.writeMask = 0;
+    attr.userWriteMask = 0;
+
+    retVal |= UA_Server_addNode_begin(server, UA_NODECLASS_METHOD,
+                UA_NODEID_NUMERIC(ns[1], 7001),
+                UA_NODEID_NUMERIC(ns[1], 5003),
+                UA_NODEID_NUMERIC(ns[0], 47),
+                UA_QUALIFIEDNAME(ns[1], "Rule1"),
+                UA_NODEID_NULL,
+                (const UA_NodeAttributes*)&attr, &UA_TYPES[UA_TYPES_METHODATTRIBUTES], NULL, NULL);
+
+    return retVal;
+}
+
+static UA_StatusCode EXAMPLE_function_lcbc_feeder1_2_finish(UA_Server *server, UA_UInt16* ns) 
+{
+
+    return UA_Server_addMethodNode_finish(server, 
+                                            UA_NODEID_NUMERIC(ns[1], 7001), 
+                                            NULL, 0, NULL, 0, NULL);
+}
+// EXAMPLES OF METHOD DEFS FROM lcbc_feeder1.c END
+
+// DI,DO callback fns
+#define DI_FxS_ID 101
+#define DO_FxC_ID 102
+#define DI_FxD_ID 103
+#define DO_FxD_ID 104
 
 static void
 afterWriteF1Ctrl(UA_Server *server,
@@ -44,6 +82,7 @@ afterWriteF1Dimm(UA_Server *server,
     UA_Server_writeValue(server, stateVarNodeId, stateVal);
 }
 
+// main
 UA_Boolean running = true;
 static void stopHandler(int sign) 
 {
