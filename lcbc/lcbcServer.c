@@ -2,7 +2,7 @@
 
 #include <signal.h>
 
-#define MARTEM_NS 1
+#define MARTEM_NS 2
 
 // Rules
 
@@ -57,74 +57,7 @@ static void afterWrite(UA_Server *server,
     UA_Boolean cmdval = *(UA_Boolean *) data->value.data;
     UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "F1 write id: %d val: %s", id, cmdval ? "true" : "false");
 
-    UA_NodeId stateVarNodeId;
-    switch(id) {
-    case DO_FxC_ID:
-        stateVarNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DI_FxS_ID);
-        break;
-    case DO_FxD_ID:
-        stateVarNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DI_FxD_ID);
-        break;
-    case DO_FxM_ID:
-        stateVarNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DI_FxM_ID);
-        break;
-    default :
-        break;
-    }
-    UA_Byte stateNum = cmdval ? 2 : 1;
-
-    UA_Variant stateVal;
-    UA_Variant_init(&stateVal);
-    UA_Variant_setScalar(&stateVal, &stateNum, &UA_TYPES[UA_TYPES_BYTE]);
-    UA_Server_writeValue(server, stateVarNodeId, stateVal);
-}
-
-static void
-afterWriteF1Ctrl(UA_Server *server,
-               const UA_NodeId *sessionId, void *sessionContext,
-               const UA_NodeId *nodeId, void *nodeContext,
-               const UA_NumericRange *range, const UA_DataValue *data) 
-{
-    UA_Boolean cmdval = *(UA_Boolean *) data->value.data;
-    UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "F1 Ctrl val: %s", cmdval ? "true" : "false");
-
-    UA_NodeId stateVarNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DI_FxS_ID);
-    UA_Byte stateNum = cmdval ? 2 : 1;
-
-    UA_Variant stateVal;
-    UA_Variant_init(&stateVal);
-    UA_Variant_setScalar(&stateVal, &stateNum, &UA_TYPES[UA_TYPES_BYTE]);
-    UA_Server_writeValue(server, stateVarNodeId, stateVal);
-}
-
-static void
-afterWriteF1Dimm(UA_Server *server,
-               const UA_NodeId *sessionId, void *sessionContext,
-               const UA_NodeId *nodeId, void *nodeContext,
-               const UA_NumericRange *range, const UA_DataValue *data) 
-{
-    UA_Boolean cmdval = *(UA_Boolean *) data->value.data;
-    UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "F1 Dimm val: %s", cmdval ? "true" : "false");
-
-    UA_NodeId stateVarNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DI_FxD_ID);
-    UA_Byte stateNum = cmdval ? 2 : 1;
-
-    UA_Variant stateVal;
-    UA_Variant_init(&stateVal);
-    UA_Variant_setScalar(&stateVal, &stateNum, &UA_TYPES[UA_TYPES_BYTE]);
-    UA_Server_writeValue(server, stateVarNodeId, stateVal);
-}
-
-static void
-afterWriteF1Man(UA_Server *server,
-               const UA_NodeId *sessionId, void *sessionContext,
-               const UA_NodeId *nodeId, void *nodeContext,
-               const UA_NumericRange *range, const UA_DataValue *data) 
-{
-    UA_Boolean cmdval = *(UA_Boolean *) data->value.data;
-    UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "F1 Man val: %s", cmdval ? "true" : "false");
-
-    UA_NodeId stateVarNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DI_FxM_ID);
+    UA_NodeId stateVarNodeId = UA_NODEID_NUMERIC(MARTEM_NS, id);
     UA_Byte stateNum = cmdval ? 2 : 1;
 
     UA_Variant stateVal;
@@ -146,8 +79,6 @@ int main(void)
     signal(SIGINT, stopHandler);
     signal(SIGTERM, stopHandler);
 
-    UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_USERLAND, "hello!");
-
     // defaults
     UA_ServerConfig *config = UA_ServerConfig_new_minimal(48020, NULL);
     UA_Server *server = UA_Server_new(config);
@@ -155,15 +86,13 @@ int main(void)
     // generated info model
     UA_StatusCode lcbcConfRet = lcbc_feeder1(server);
 
-    UA_Int32 id;
-
     // mocks for feeder 1 ctrl logic
     UA_NodeId ctrlNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DO_FxC_ID);
     UA_ValueCallback callbackCtrl;
     callbackCtrl.onRead = NULL;
-    callbackCtrl.onWrite = afterWriteF1Ctrl;
-    // id = DI_FxS_ID;
-    // UA_Server_setNodeContext(server, ctrlNodeId, (void *)&id);
+    callbackCtrl.onWrite = afterWrite;
+    UA_Int32 fxsid = DI_FxS_ID;
+    UA_Server_setNodeContext(server, ctrlNodeId, (void *)&fxsid);
     UA_Server_setVariableNode_valueCallback(server, ctrlNodeId, callbackCtrl);
 
     // mocks for feeder 1 dimming logic
@@ -171,18 +100,18 @@ int main(void)
     UA_ValueCallback callbackDimm;
     callbackDimm.onRead = NULL;
     callbackDimm.onWrite = afterWrite;
-    id = DI_FxD_ID;
-    UA_Server_setNodeContext(server, dimmNodeId, (void *)&id);
+    UA_Int32 fxdid = DI_FxD_ID;
+    UA_Server_setNodeContext(server, dimmNodeId, (void *)&fxdid);
     UA_Server_setVariableNode_valueCallback(server, dimmNodeId, callbackDimm);
 
     // mocks for feeder 1 manual override logic
-    // UA_NodeId manNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DO_FxM_ID);
-    // UA_ValueCallback callbackMan;
-    // callbackDimm.onRead = NULL;
-    // callbackDimm.onWrite = afterWrite;
-    // id = DI_FxM_ID;
-    // UA_Server_setNodeContext(server, manNodeId, (void *)&id);
-    // UA_Server_setVariableNode_valueCallback(server, manNodeId, callbackMan);
+    UA_NodeId manNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DO_FxM_ID);
+    UA_ValueCallback callbackMan;
+    callbackMan.onRead = NULL;
+    callbackMan.onWrite = afterWrite;
+    UA_Int32 fxmid = DI_FxM_ID;
+    UA_Server_setNodeContext(server, manNodeId, (void *)&fxmid);
+    UA_Server_setVariableNode_valueCallback(server, manNodeId, callbackMan);
 
     if(UA_STATUSCODE_GOOD != lcbcConfRet) {
         UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "LCBC conf failed");
