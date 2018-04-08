@@ -14,13 +14,11 @@ cd build
 cmake -DBUILD_SHARED_LIBS=ON \
 -DUA_ENABLE_AMALGAMATION=ON \
 -DUA_ENABLE_FULL_NS0=ON \
--DUA_LOGLEVEL=100 ..
+-DUA_LOGLEVEL=300 ..
 
 make -j4
 sudo make install
 
 cd ../lcbc/build
-./xml_parser.sh
-sed -i 's/\(#include \).*$/\1 "open62541\/open62541.h"/' ../gen/lcbc_feeder1.h
-./compile.sh
+./all.sh
 echo "location of server binary: opc-ua-c/lcbc/bin"

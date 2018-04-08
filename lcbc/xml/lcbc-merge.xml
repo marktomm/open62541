@@ -474,11 +474,13 @@
 	<UAObject NodeId="ns=1;i=5002" BrowseName="1:LCBC">
         <DisplayName>LCBC</DisplayName>
         <References>
-            <Reference ReferenceType="Organizes">ns=1;i=101</Reference>
-            <Reference ReferenceType="Organizes">ns=1;i=104</Reference>
-            <Reference ReferenceType="Organizes">ns=1;i=103</Reference>
-            <Reference ReferenceType="Organizes">ns=1;i=102</Reference>
             <Reference ReferenceType="Organizes">ns=1;i=100</Reference>
+            <Reference ReferenceType="Organizes">ns=1;i=101</Reference>
+            <Reference ReferenceType="Organizes">ns=1;i=102</Reference>
+            <Reference ReferenceType="Organizes">ns=1;i=103</Reference>
+            <Reference ReferenceType="Organizes">ns=1;i=104</Reference>
+            <Reference ReferenceType="Organizes">ns=1;i=105</Reference>
+			<Reference ReferenceType="Organizes">ns=1;i=106</Reference>
             <Reference ReferenceType="HasTypeDefinition">i=61</Reference>
             <Reference ReferenceType="Organizes" IsForward="false">i=85</Reference>
             <Reference ReferenceType="Organizes">ns=1;i=5003</Reference>
@@ -1024,6 +1026,224 @@
         </References>
         <Value>
             <uax:String>TX</uax:String>
+        </Value>
+    </UAVariable>
+	    <UAVariable SymbolicName="F1_Kasitsi_juhtimine" DataType="Boolean" NodeId="ns=1;i=106" BrowseName="1:F1 Kasitsi juhtimine" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>F1 Kasitsi juhtimine</DisplayName>
+        <References>
+            <Reference ReferenceType="HasProperty">ns=1;i=60681</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60701</Reference>
+            <Reference ReferenceType="Organizes" IsForward="false">ns=1;i=5002</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60711</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60721</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60731</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=2002</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60741</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60751</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60761</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60771</Reference>
+        </References>
+        <Value>
+            <uax:Boolean>false</uax:Boolean>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="Int32" ParentNodeId="ns=1;i=106" NodeId="ns=1;i=60681" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>AlarmHigh</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=106</Reference>
+        </References>
+        <Value>
+            <uax:Int32>0</uax:Int32>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="Int32" ParentNodeId="ns=1;i=106" NodeId="ns=1;i=60701" BrowseName="1:AlarmLow" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>AlarmLow</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=106</Reference>
+        </References>
+        <Value>
+            <uax:Int32>0</uax:Int32>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=106" NodeId="ns=1;i=60711" BrowseName="1:FeederCtx" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>FeederCtx</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=106</Reference>
+        </References>
+        <Value>
+            <uax:String>DO_FxM</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="UInt16" ParentNodeId="ns=1;i=106" NodeId="ns=1;i=60721" BrowseName="1:FeederIdx" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>FeederIdx</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=106</Reference>
+        </References>
+        <Value>
+            <uax:UInt16>1</uax:UInt16>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="Boolean" ParentNodeId="ns=1;i=106" NodeId="ns=1;i=60731" BrowseName="1:InUse" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>InUse</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=106</Reference>
+        </References>
+        <Value>
+            <uax:Boolean>true</uax:Boolean>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=106" NodeId="ns=1;i=60741" BrowseName="1:OffTxt" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>OffTxt</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=106</Reference>
+        </References>
+        <Value>
+            <uax:String>Norm</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=106" NodeId="ns=1;i=60751" BrowseName="1:OnTxt" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>OnTxt</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=106</Reference>
+        </References>
+        <Value>
+            <uax:String>Kasijuht</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="Int16" ParentNodeId="ns=1;i=106" NodeId="ns=1;i=60761" BrowseName="1:Pos" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>Pos</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=106</Reference>
+        </References>
+        <Value>
+            <uax:Int16>0</uax:Int16>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=106" NodeId="ns=1;i=60771" BrowseName="1:Type" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>Type</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=106</Reference>
+        </References>
+        <Value>
+            <uax:String>DO</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable SymbolicName="F1_Kasitsi_juhtimise_olek" DataType="Byte" NodeId="ns=1;i=105" BrowseName="1:F1_Kasitsi juhtimise olek">
+        <DisplayName>F1_Kasitsi juhtimise olek</DisplayName>
+        <References>
+            <Reference ReferenceType="HasProperty">ns=1;i=60021</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60601</Reference>
+            <Reference ReferenceType="Organizes" IsForward="false">ns=1;i=5002</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60611</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60621</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60631</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=2002</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60641</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60651</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60661</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=60671</Reference>
+        </References>
+        <Value>
+            <uax:Byte>0</uax:Byte>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="Int32" ParentNodeId="ns=1;i=105" NodeId="ns=1;i=60021" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>AlarmHigh</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=105</Reference>
+        </References>
+        <Value>
+            <uax:Int32>0</uax:Int32>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="Int32" ParentNodeId="ns=1;i=105" NodeId="ns=1;i=60601" BrowseName="1:AlarmLow" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>AlarmLow</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=105</Reference>
+        </References>
+        <Value>
+            <uax:Int32>0</uax:Int32>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=105" NodeId="ns=1;i=60611" BrowseName="1:FeederCtx" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>FeederCtx</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=105</Reference>
+        </References>
+        <Value>
+            <uax:String></uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="UInt16" ParentNodeId="ns=1;i=105" NodeId="ns=1;i=60621" BrowseName="1:FeederIdx" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>FeederIdx</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=105</Reference>
+        </References>
+        <Value>
+            <uax:UInt16>1</uax:UInt16>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="Boolean" ParentNodeId="ns=1;i=105" NodeId="ns=1;i=60631" BrowseName="1:InUse" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>InUse</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=105</Reference>
+        </References>
+        <Value>
+            <uax:Boolean>true</uax:Boolean>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=105" NodeId="ns=1;i=60641" BrowseName="1:OffTxt" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>OffTxt</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=105</Reference>
+        </References>
+        <Value>
+            <uax:String>Norm</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=105" NodeId="ns=1;i=60651" BrowseName="1:OnTxt" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>OnTxt</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=105</Reference>
+        </References>
+        <Value>
+            <uax:String>Kasitisi juht</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="Int16" ParentNodeId="ns=1;i=105" NodeId="ns=1;i=60661" BrowseName="1:Pos" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>Pos</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=105</Reference>
+        </References>
+        <Value>
+            <uax:Int16>11</uax:Int16>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=105" NodeId="ns=1;i=60671" BrowseName="1:Type" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>Type</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=105</Reference>
+        </References>
+        <Value>
+            <uax:String>DI</uax:String>
         </Value>
     </UAVariable>
 <!-- Rule object merge below -->
