@@ -20,7 +20,5 @@ make -j4
 sudo make install
 
 cd ../lcbc/build
-./xml_parser.sh
-sed -i 's/\(#include \).*$/\1 "open62541\/open62541.h"/' ../gen/lcbc_feeder1.h
-./compile.sh
+./all.sh
 echo "location of server binary: opc-ua-c/lcbc/bin"
