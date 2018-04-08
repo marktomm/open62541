@@ -14,7 +14,7 @@ cd build
 cmake -DBUILD_SHARED_LIBS=ON \
 -DUA_ENABLE_AMALGAMATION=ON \
 -DUA_ENABLE_FULL_NS0=ON \
--DUA_LOGLEVEL=100 ..
+-DUA_LOGLEVEL=300 ..
 
 make -j4
 sudo make install
