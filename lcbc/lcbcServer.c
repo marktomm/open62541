@@ -86,37 +86,31 @@ int main(void)
     // generated info model
     UA_StatusCode lcbcConfRet = lcbc_feeder1(server);
 
-    // mocks for feeder 1 ctrl logic
-    UA_NodeId ctrlNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DO_FxC_ID);
-    UA_ValueCallback callbackCtrl;
-    callbackCtrl.onRead = NULL;
-    callbackCtrl.onWrite = afterWrite;
-    UA_Int32 fxsid = DI_FxS_ID;
-    UA_Server_setNodeContext(server, ctrlNodeId, (void *)&fxsid);
-    UA_Server_setVariableNode_valueCallback(server, ctrlNodeId, callbackCtrl);
-
-    // mocks for feeder 1 dimming logic
-    UA_NodeId dimmNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DO_FxD_ID);
-    UA_ValueCallback callbackDimm;
-    callbackDimm.onRead = NULL;
-    callbackDimm.onWrite = afterWrite;
-    UA_Int32 fxdid = DI_FxD_ID;
-    UA_Server_setNodeContext(server, dimmNodeId, (void *)&fxdid);
-    UA_Server_setVariableNode_valueCallback(server, dimmNodeId, callbackDimm);
-
-    // mocks for feeder 1 manual override logic
-    UA_NodeId manNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DO_FxM_ID);
-    UA_ValueCallback callbackMan;
-    callbackMan.onRead = NULL;
-    callbackMan.onWrite = afterWrite;
-    UA_Int32 fxmid = DI_FxM_ID;
-    UA_Server_setNodeContext(server, manNodeId, (void *)&fxmid);
-    UA_Server_setVariableNode_valueCallback(server, manNodeId, callbackMan);
-
     if(UA_STATUSCODE_GOOD != lcbcConfRet) {
         UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "LCBC conf failed");
         return (int)lcbcConfRet;
     }
+
+    // mocks for feeder 1 ctrl logic
+    UA_NodeId ctrlNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DO_FxC_ID);
+    UA_ValueCallback callback;
+    callback.onRead = NULL;
+    callback.onWrite = afterWrite;
+    UA_Int32 fxsid = DI_FxS_ID;
+    UA_Server_setNodeContext(server, ctrlNodeId, (void *)&fxsid);
+    UA_Server_setVariableNode_valueCallback(server, ctrlNodeId, callback);
+
+    // mocks for feeder 1 dimming logic
+    UA_NodeId dimmNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DO_FxD_ID);
+    UA_Int32 fxdid = DI_FxD_ID;
+    UA_Server_setNodeContext(server, dimmNodeId, (void *)&fxdid);
+    UA_Server_setVariableNode_valueCallback(server, dimmNodeId, callback);
+
+    // mocks for feeder 1 manual override logic
+    UA_NodeId manNodeId = UA_NODEID_NUMERIC(MARTEM_NS, DO_FxM_ID);
+    UA_Int32 fxmid = DI_FxM_ID;
+    UA_Server_setNodeContext(server, manNodeId, (void *)&fxmid);
+    UA_Server_setVariableNode_valueCallback(server, manNodeId, callback);
 
     UA_StatusCode retval = UA_Server_run(server, &running);
     UA_Server_delete(server);
