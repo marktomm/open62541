@@ -1,0 +1,3 @@
+LCBC_ROOT=$(readlink -f ../)
+OPEN_OPC_ROOT=$(readlink -f ../../)
+GEN_OBJECT_FEEDER=1
