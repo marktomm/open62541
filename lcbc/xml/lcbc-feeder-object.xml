@@ -23,7 +23,7 @@
     </Aliases>
     <Extensions>
         <Extension>
-            <ua:ModelInfo Tool="UaModeler" Hash="MTwxH59wqFBZVRkpHi6DiA==" Version="1.5.2"/>
+            <ua:ModelInfo Tool="UaModeler" Hash="deV/lcbjBOEUZKrvOh+EQg==" Version="1.5.2"/>
         </Extension>
     </Extensions>
     <UAVariable SymbolicName="TypeDictionary_BinarySchema" DataType="ByteString" NodeId="ns=1;i=6021" BrowseName="1:TypeDictionary">
@@ -188,7 +188,7 @@
             <Reference ReferenceType="HasComponent">ns=1;i=6286</Reference>
         </References>
     </UAObjectType>
-    <UAVariable DataType="Boolean" ParentNodeId="ns=1;i=1003" NodeId="ns=1;i=6276" BrowseName="1:Active" UserAccessLevel="3" AccessLevel="3">
+    <UAVariable DataType="Byte" ParentNodeId="ns=1;i=1003" NodeId="ns=1;i=6276" BrowseName="1:Active" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>Active</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty">ns=1;i=6277</Reference>
@@ -205,7 +205,7 @@
             <Reference ReferenceType="HasProperty">ns=1;i=6285</Reference>
         </References>
         <Value>
-            <uax:Boolean>false</uax:Boolean>
+            <uax:Byte>1</uax:Byte>
         </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=6276" NodeId="ns=1;i=6277" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
@@ -301,7 +301,7 @@
             <uax:String>DI</uax:String>
         </Value>
     </UAVariable>
-    <UAVariable DataType="Boolean" ParentNodeId="ns=1;i=1003" NodeId="ns=1;i=6238" BrowseName="1:AlarmState" UserAccessLevel="3" AccessLevel="3">
+    <UAVariable DataType="Byte" ParentNodeId="ns=1;i=1003" NodeId="ns=1;i=6238" BrowseName="1:AlarmState" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>AlarmState</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty">ns=1;i=6248</Reference>
@@ -310,13 +310,16 @@
             <Reference ReferenceType="HasProperty">ns=1;i=6260</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6261</Reference>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=10001</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1003</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=10001</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6262</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6263</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6264</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6265</Reference>
         </References>
+        <Value>
+            <uax:Byte>1</uax:Byte>
+        </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=6238" NodeId="ns=1;i=6248" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>AlarmHigh</DisplayName>
@@ -473,7 +476,7 @@
             </uax:ListOfExtensionObject>
         </Value>
     </UAVariable>
-    <UAVariable SymbolicName="Automaadid_Sees" DataType="Boolean" ParentNodeId="ns=1;i=1003" NodeId="ns=1;i=6296" BrowseName="1:Automaadid Sees" UserAccessLevel="3" AccessLevel="3">
+    <UAVariable SymbolicName="Automaadid_Sees" DataType="Byte" ParentNodeId="ns=1;i=1003" NodeId="ns=1;i=6296" BrowseName="1:Automaadid Sees" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>Automaadid Sees</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty">ns=1;i=6297</Reference>
@@ -482,13 +485,16 @@
             <Reference ReferenceType="HasProperty">ns=1;i=6300</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6301</Reference>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=10001</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1003</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=10001</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6302</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6303</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6304</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6305</Reference>
         </References>
+        <Value>
+            <uax:Byte>1</uax:Byte>
+        </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=6296" NodeId="ns=1;i=6297" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>AlarmHigh</DisplayName>
@@ -678,7 +684,7 @@
             <uax:String>AI</uax:String>
         </Value>
     </UAVariable>
-    <UAVariable SymbolicName="Door_Alarm" DataType="Boolean" ParentNodeId="ns=1;i=1003" NodeId="ns=1;i=6306" BrowseName="1:Door Alarm" UserAccessLevel="3" AccessLevel="3">
+    <UAVariable SymbolicName="Door_Alarm" DataType="Byte" ParentNodeId="ns=1;i=1003" NodeId="ns=1;i=6306" BrowseName="1:Door Alarm" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>Door Alarm</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty">ns=1;i=6307</Reference>
@@ -687,13 +693,16 @@
             <Reference ReferenceType="HasProperty">ns=1;i=6310</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6311</Reference>
             <Reference ReferenceType="HasModellingRule">i=78</Reference>
-            <Reference ReferenceType="HasTypeDefinition">ns=1;i=10001</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1003</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=10001</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6312</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6313</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6314</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6315</Reference>
         </References>
+        <Value>
+            <uax:Byte>1</uax:Byte>
+        </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=6306" NodeId="ns=1;i=6307" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>AlarmHigh</DisplayName>
@@ -951,7 +960,7 @@
             </uax:ListOfExtensionObject>
         </Value>
     </UAVariable>
-    <UAVariable DataType="Boolean" ParentNodeId="ns=1;i=1003" NodeId="ns=1;i=6266" BrowseName="1:ManualOverrideState" UserAccessLevel="3" AccessLevel="3">
+    <UAVariable DataType="Byte" ParentNodeId="ns=1;i=1003" NodeId="ns=1;i=6266" BrowseName="1:ManualOverrideState" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>ManualOverrideState</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty">ns=1;i=6267</Reference>
@@ -968,7 +977,7 @@
             <Reference ReferenceType="HasProperty">ns=1;i=6275</Reference>
         </References>
         <Value>
-            <uax:Boolean>false</uax:Boolean>
+            <uax:Byte>1</uax:Byte>
         </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=6266" NodeId="ns=1;i=6267" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
@@ -1156,7 +1165,7 @@
             <uax:String>AI</uax:String>
         </Value>
     </UAVariable>
-    <UAVariable DataType="Boolean" ParentNodeId="ns=1;i=1003" NodeId="ns=1;i=6286" BrowseName="1:VoltageAlarm" UserAccessLevel="3" AccessLevel="3">
+    <UAVariable DataType="Byte" ParentNodeId="ns=1;i=1003" NodeId="ns=1;i=6286" BrowseName="1:VoltageAlarm" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>VoltageAlarm</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty">ns=1;i=6287</Reference>
@@ -1172,6 +1181,9 @@
             <Reference ReferenceType="HasProperty">ns=1;i=6295</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1003</Reference>
         </References>
+        <Value>
+            <uax:Byte>1</uax:Byte>
+        </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=6286" NodeId="ns=1;i=6287" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>AlarmHigh</DisplayName>
@@ -2194,7 +2206,7 @@
             <Reference ReferenceType="HasComponent">ns=1;i=4</Reference>
         </References>
     </UAObject>
-    <UAVariable DataType="Boolean" ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=3" BrowseName="1:Active" UserAccessLevel="3" AccessLevel="3">
+    <UAVariable DataType="Byte" ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=3" BrowseName="1:Active" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>Active</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty">ns=1;i=6163</Reference>
@@ -2210,7 +2222,7 @@
             <Reference ReferenceType="HasProperty">ns=1;i=6171</Reference>
         </References>
         <Value>
-            <uax:Boolean>false</uax:Boolean>
+            <uax:Byte>1</uax:Byte>
         </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=3" NodeId="ns=1;i=6163" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
@@ -2297,7 +2309,7 @@
             <uax:String>DI</uax:String>
         </Value>
     </UAVariable>
-    <UAVariable DataType="Boolean" ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=1" BrowseName="1:AlarmState" UserAccessLevel="3" AccessLevel="3">
+    <UAVariable DataType="Byte" ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=1" BrowseName="1:AlarmState" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>AlarmState</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty">ns=1;i=6174</Reference>
@@ -2313,7 +2325,7 @@
             <Reference ReferenceType="HasProperty">ns=1;i=6196</Reference>
         </References>
         <Value>
-            <uax:Boolean>false</uax:Boolean>
+            <uax:Byte>1</uax:Byte>
         </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=1" NodeId="ns=1;i=6174" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
@@ -2397,15 +2409,15 @@
             <uax:String>DI</uax:String>
         </Value>
     </UAVariable>
-    <UAMethod ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=27" BrowseName="1:AnalogOutput">
+    <UAMethod ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=27" BrowseName="1:AnalogOutput" MethodDeclarationId="ns=1;i=7003">
         <DisplayName>AnalogOutput</DisplayName>
         <References>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=10000</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6206</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6207</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6162</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6173</Reference>
         </References>
     </UAMethod>
-    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=27" ValueRank="1" NodeId="ns=1;i=6206" ArrayDimensions="1" BrowseName="InputArguments">
+    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=27" ValueRank="1" NodeId="ns=1;i=6162" ArrayDimensions="1" BrowseName="InputArguments">
         <DisplayName>InputArguments</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=27</Reference>
@@ -2432,7 +2444,7 @@
             </uax:ListOfExtensionObject>
         </Value>
     </UAVariable>
-    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=27" ValueRank="1" NodeId="ns=1;i=6207" ArrayDimensions="1" BrowseName="OutputArguments">
+    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=27" ValueRank="1" NodeId="ns=1;i=6173" ArrayDimensions="1" BrowseName="OutputArguments">
         <DisplayName>OutputArguments</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=27</Reference>
@@ -2459,7 +2471,7 @@
             </uax:ListOfExtensionObject>
         </Value>
     </UAVariable>
-    <UAVariable SymbolicName="Automaadid_Sees" DataType="Boolean" ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=5" BrowseName="1:Automaadid Sees" UserAccessLevel="3" AccessLevel="3">
+    <UAVariable SymbolicName="Automaadid_Sees" DataType="Byte" ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=5" BrowseName="1:Automaadid Sees" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>Automaadid Sees</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty">ns=1;i=6218</Reference>
@@ -2475,7 +2487,7 @@
             <Reference ReferenceType="HasProperty">ns=1;i=6235</Reference>
         </References>
         <Value>
-            <uax:Boolean>false</uax:Boolean>
+            <uax:Byte>1</uax:Byte>
         </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=5" NodeId="ns=1;i=6218" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
@@ -2571,9 +2583,6 @@
             <Reference ReferenceType="HasProperty">ns=1;i=6356</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6357</Reference>
         </References>
-        <Value>
-            <uax:Double>0</uax:Double>
-        </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=8" NodeId="ns=1;i=6237" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>AlarmHigh</DisplayName>
@@ -2650,7 +2659,7 @@
             <uax:String>AI</uax:String>
         </Value>
     </UAVariable>
-    <UAVariable SymbolicName="Door_Alarm" DataType="Boolean" ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=6" BrowseName="1:Door Alarm" UserAccessLevel="3" AccessLevel="3">
+    <UAVariable SymbolicName="Door_Alarm" DataType="Byte" ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=6" BrowseName="1:Door Alarm" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>Door Alarm</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty">ns=1;i=6359</Reference>
@@ -2666,7 +2675,7 @@
             <Reference ReferenceType="HasProperty">ns=1;i=6367</Reference>
         </References>
         <Value>
-            <uax:Boolean>false</uax:Boolean>
+            <uax:Byte>1</uax:Byte>
         </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=6" NodeId="ns=1;i=6359" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
@@ -2765,9 +2774,6 @@
             <Reference ReferenceType="HasProperty">ns=1;i=6376</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6377</Reference>
         </References>
-        <Value>
-            <uax:Double>0</uax:Double>
-        </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=7" NodeId="ns=1;i=6369" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>AlarmHigh</DisplayName>
@@ -2844,15 +2850,15 @@
             <uax:String>AI</uax:String>
         </Value>
     </UAVariable>
-    <UAMethod ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=11" BrowseName="1:ManualOverrideControl">
+    <UAMethod ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=11" BrowseName="1:ManualOverrideControl" MethodDeclarationId="ns=1;i=7004">
         <DisplayName>ManualOverrideControl</DisplayName>
         <References>
-            <Reference ReferenceType="HasProperty">ns=1;i=6378</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6206</Reference>
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=10000</Reference>
-            <Reference ReferenceType="HasProperty">ns=1;i=6379</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6207</Reference>
         </References>
     </UAMethod>
-    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=11" ValueRank="1" NodeId="ns=1;i=6378" ArrayDimensions="1" BrowseName="InputArguments">
+    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=11" ValueRank="1" NodeId="ns=1;i=6206" ArrayDimensions="1" BrowseName="InputArguments">
         <DisplayName>InputArguments</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=11</Reference>
@@ -2879,7 +2885,7 @@
             </uax:ListOfExtensionObject>
         </Value>
     </UAVariable>
-    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=11" ValueRank="1" NodeId="ns=1;i=6379" ArrayDimensions="1" BrowseName="OutputArguments">
+    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=11" ValueRank="1" NodeId="ns=1;i=6207" ArrayDimensions="1" BrowseName="OutputArguments">
         <DisplayName>OutputArguments</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=11</Reference>
@@ -2906,7 +2912,7 @@
             </uax:ListOfExtensionObject>
         </Value>
     </UAVariable>
-    <UAVariable DataType="Boolean" ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=2" BrowseName="1:ManualOverrideState" UserAccessLevel="3" AccessLevel="3">
+    <UAVariable DataType="Byte" ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=2" BrowseName="1:ManualOverrideState" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>ManualOverrideState</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty">ns=1;i=6381</Reference>
@@ -2922,7 +2928,7 @@
             <Reference ReferenceType="HasProperty">ns=1;i=6389</Reference>
         </References>
         <Value>
-            <uax:Boolean>false</uax:Boolean>
+            <uax:Byte>1</uax:Byte>
         </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=2" NodeId="ns=1;i=6381" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
@@ -3021,9 +3027,6 @@
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=10000</Reference>
             <Reference ReferenceType="HasProperty">ns=1;i=6399</Reference>
         </References>
-        <Value>
-            <uax:Double>0</uax:Double>
-        </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=9" NodeId="ns=1;i=6391" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>AlarmHigh</DisplayName>
@@ -3094,7 +3097,7 @@
             <uax:String>AI</uax:String>
         </Value>
     </UAVariable>
-    <UAVariable DataType="Boolean" ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=4" BrowseName="1:VoltageAlarm" UserAccessLevel="3" AccessLevel="3">
+    <UAVariable DataType="Byte" ParentNodeId="ns=1;i=10000" NodeId="ns=1;i=4" BrowseName="1:VoltageAlarm" UserAccessLevel="3" AccessLevel="3">
         <DisplayName>VoltageAlarm</DisplayName>
         <References>
             <Reference ReferenceType="HasProperty">ns=1;i=6401</Reference>
@@ -3110,7 +3113,7 @@
             <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=10000</Reference>
         </References>
         <Value>
-            <uax:Boolean>false</uax:Boolean>
+            <uax:Byte>1</uax:Byte>
         </Value>
     </UAVariable>
     <UAVariable DataType="Int32" ParentNodeId="ns=1;i=4" NodeId="ns=1;i=6401" BrowseName="1:AlarmHigh" UserAccessLevel="3" AccessLevel="3">
