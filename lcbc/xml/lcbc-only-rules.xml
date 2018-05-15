@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UANodeSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uax="http://opcfoundation.org/UA/2008/02/Types.xsd" xmlns="http://opcfoundation.org/UA/2011/03/UANodeSet.xsd" xmlns:s1="http://martem.eu/LCBC/Types.xsd" xmlns:ua="http://unifiedautomation.com/Configuration/NodeSet.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <NamespaceUris>
+        <Uri>http://martem.eu/LCBC/</Uri>
+    </NamespaceUris>
+    <Aliases>
+        <Alias Alias="Int32">i=6</Alias>
+        <Alias Alias="String">i=12</Alias>
+        <Alias Alias="ByteString">i=15</Alias>
+        <Alias Alias="Organizes">i=35</Alias>
+        <Alias Alias="HasModellingRule">i=37</Alias>
+        <Alias Alias="HasEncoding">i=38</Alias>
+        <Alias Alias="HasDescription">i=39</Alias>
+        <Alias Alias="HasTypeDefinition">i=40</Alias>
+        <Alias Alias="HasSubtype">i=45</Alias>
+        <Alias Alias="HasProperty">i=46</Alias>
+        <Alias Alias="HasComponent">i=47</Alias>
+        <Alias Alias="Argument">i=296</Alias>
+        <Alias Alias="MartemRuleDataType">ns=1;i=3002</Alias>
+    </Aliases>
+    <Extensions>
+        <Extension>
+            <ua:ModelInfo Tool="UaModeler" Hash="ozBndapHeC8g9xSeVhbwKQ==" Version="1.5.2"/>
+        </Extension>
+    </Extensions>
+    <UADataType NodeId="ns=1;i=3002" BrowseName="1:MartemRuleDataType">
+        <DisplayName>MartemRuleDataType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasEncoding">ns=1;i=5001</Reference>
+            <Reference ReferenceType="HasEncoding">ns=1;i=5004</Reference>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=22</Reference>
+        </References>
+        <Definition Name="1:MartemRuleDataType">
+            <Field DataType="Int32" ValueRank="1" Name="InputArguments">
+                <Description>Rule input arguments array</Description>
+            </Field>
+        </Definition>
+    </UADataType>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=6021" NodeId="ns=1;i=6061" BrowseName="1:MartemRuleDataType">
+        <DisplayName>MartemRuleDataType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=69</Reference>
+            <Reference ReferenceType="HasDescription" IsForward="false">ns=1;i=5001</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=6021</Reference>
+        </References>
+        <Value>
+            <uax:String>MartemRuleDataType</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=6041" NodeId="ns=1;i=6064" BrowseName="1:MartemRuleDataType">
+        <DisplayName>MartemRuleDataType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=69</Reference>
+            <Reference ReferenceType="HasDescription" IsForward="false">ns=1;i=5004</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=6041</Reference>
+        </References>
+        <Value>
+            <uax:String>//xs:element[@name='MartemRuleDataType']</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable SymbolicName="TypeDictionary_BinarySchema" DataType="ByteString" NodeId="ns=1;i=6021" BrowseName="1:TypeDictionary">
+        <DisplayName>TypeDictionary</DisplayName>
+        <Description>Collects the data type descriptions of http://martem.eu/LCBC/</Description>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=72</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=6061</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6031</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">i=93</Reference>
+        </References>
+        <Value>
+            <uax:ByteString>PG9wYzpUeXBlRGljdGlvbmFyeSB4bWxuczp4c2k9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvWE1MU2NoZ
+        W1hLWluc3RhbmNlIiB4bWxuczp0bnM9Imh0dHA6Ly9tYXJ0ZW0uZXUvTENCQy8iIERlZmF1b
+        HRCeXRlT3JkZXI9IkxpdHRsZUVuZGlhbiIgeG1sbnM6b3BjPSJodHRwOi8vb3BjZm91bmRhd
+        Glvbi5vcmcvQmluYXJ5U2NoZW1hLyIgeG1sbnM6dWE9Imh0dHA6Ly9vcGNmb3VuZGF0aW9uL
+        m9yZy9VQS8iIFRhcmdldE5hbWVzcGFjZT0iaHR0cDovL21hcnRlbS5ldS9MQ0JDLyI+CiA8b
+        3BjOkltcG9ydCBOYW1lc3BhY2U9Imh0dHA6Ly9vcGNmb3VuZGF0aW9uLm9yZy9VQS8iLz4KI
+        DxvcGM6U3RydWN0dXJlZFR5cGUgQmFzZVR5cGU9InVhOkV4dGVuc2lvbk9iamVjdCIgTmFtZ
+        T0iTWFydGVtUnVsZURhdGFUeXBlIj4KICA8b3BjOkZpZWxkIFR5cGVOYW1lPSJvcGM6SW50M
+        zIiIE5hbWU9Ik5vT2ZJbnB1dEFyZ3VtZW50cyIvPgogIDxvcGM6RmllbGQgTGVuZ3RoRmllb
+        GQ9Ik5vT2ZJbnB1dEFyZ3VtZW50cyIgVHlwZU5hbWU9Im9wYzpJbnQzMiIgTmFtZT0iSW5wd
+        XRBcmd1bWVudHMiLz4KIDwvb3BjOlN0cnVjdHVyZWRUeXBlPgo8L29wYzpUeXBlRGljdGlvb
+        mFyeT4K</uax:ByteString>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=6021" NodeId="ns=1;i=6031" BrowseName="NamespaceUri">
+        <DisplayName>NamespaceUri</DisplayName>
+        <References>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=6021</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+        </References>
+        <Value>
+            <uax:String>http://martem.eu/LCBC/</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariable SymbolicName="TypeDictionary_XmlSchema" DataType="ByteString" NodeId="ns=1;i=6041" BrowseName="1:TypeDictionary">
+        <DisplayName>TypeDictionary</DisplayName>
+        <Description>Collects the data type descriptions of http://martem.eu/LCBC/</Description>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=72</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=6064</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6051</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">i=92</Reference>
+        </References>
+        <Value>
+            <uax:ByteString>PHhzOnNjaGVtYSBlbGVtZW50Rm9ybURlZmF1bHQ9InF1YWxpZmllZCIgdGFyZ2V0TmFtZXNwYWNlPSJod
+        HRwOi8vbWFydGVtLmV1L0xDQkMvVHlwZXMueHNkIiB4bWxuczp0bnM9Imh0dHA6Ly9tYXJ0Z
+        W0uZXUvTENCQy9UeXBlcy54c2QiIHhtbG5zOnVhPSJodHRwOi8vb3BjZm91bmRhdGlvbi5vc
+        mcvVUEvMjAwOC8wMi9UeXBlcy54c2QiIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yM
+        DAxL1hNTFNjaGVtYSI+CiA8eHM6aW1wb3J0IG5hbWVzcGFjZT0iaHR0cDovL29wY2ZvdW5kY
+        XRpb24ub3JnL1VBLzIwMDgvMDIvVHlwZXMueHNkIi8+CiA8eHM6Y29tcGxleFR5cGUgbmFtZ
+        T0iTWFydGVtUnVsZURhdGFUeXBlIj4KICA8eHM6c2VxdWVuY2U+CiAgIDx4czplbGVtZW50I
+        G1pbk9jY3Vycz0iMCIgbWF4T2NjdXJzPSIxIiB0eXBlPSJ1YTpMaXN0T2ZJbnQzMiIgbmFtZ
+        T0iSW5wdXRBcmd1bWVudHMiLz4KICA8L3hzOnNlcXVlbmNlPgogPC94czpjb21wbGV4VHlwZ
+        T4KIDx4czplbGVtZW50IHR5cGU9InRuczpNYXJ0ZW1SdWxlRGF0YVR5cGUiIG5hbWU9Ik1hc
+        nRlbVJ1bGVEYXRhVHlwZSIvPgogPHhzOmNvbXBsZXhUeXBlIG5hbWU9Ikxpc3RPZk1hcnRlb
+        VJ1bGVEYXRhVHlwZSI+CiAgPHhzOnNlcXVlbmNlPgogICA8eHM6ZWxlbWVudCBtaW5PY2N1c
+        nM9IjAiIG1heE9jY3Vycz0idW5ib3VuZGVkIiB0eXBlPSJ0bnM6TWFydGVtUnVsZURhdGFUe
+        XBlIiBuYW1lPSJNYXJ0ZW1SdWxlRGF0YVR5cGUiIG5pbGxhYmxlPSJ0cnVlIi8+CiAgPC94c
+        zpzZXF1ZW5jZT4KIDwveHM6Y29tcGxleFR5cGU+CiA8eHM6ZWxlbWVudCB0eXBlPSJ0bnM6T
+        GlzdE9mTWFydGVtUnVsZURhdGFUeXBlIiBuYW1lPSJMaXN0T2ZNYXJ0ZW1SdWxlRGF0YVR5c
+        GUiIG5pbGxhYmxlPSJ0cnVlIi8+CjwveHM6c2NoZW1hPgo=</uax:ByteString>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="String" ParentNodeId="ns=1;i=6041" NodeId="ns=1;i=6051" BrowseName="NamespaceUri">
+        <DisplayName>NamespaceUri</DisplayName>
+        <References>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=6041</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+        </References>
+        <Value>
+            <uax:String>http://martem.eu/LCBC/Types.xsd</uax:String>
+        </Value>
+    </UAVariable>
+    <UAVariableType DataType="MartemRuleDataType" ValueRank="1" NodeId="ns=1;i=2004" BrowseName="1:MartemRuleDiagnosticsArrayType">
+        <DisplayName>MartemRuleDiagnosticsArrayType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=63</Reference>
+        </References>
+    </UAVariableType>
+    <UAVariableType DataType="MartemRuleDataType" NodeId="ns=1;i=2003" BrowseName="1:MartemRuleDiagnosticsType">
+        <DisplayName>MartemRuleDiagnosticsType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=63</Reference>
+        </References>
+        <Value>
+            <uax:ExtensionObject>
+                <uax:TypeId>
+                    <uax:Identifier>ns=1;i=5004</uax:Identifier>
+                </uax:TypeId>
+                <uax:Body>
+                    <MartemRuleDataType xmlns="http://martem.eu/LCBC/Types.xsd">
+                        <InputArguments/>
+                    </MartemRuleDataType>
+                </uax:Body>
+            </uax:ExtensionObject>
+        </Value>
+    </UAVariableType>
+    <UAObjectType NodeId="ns=1;i=1002" BrowseName="1:MartemRulesType">
+        <DisplayName>MartemRulesType</DisplayName>
+        <References>
+            <Reference ReferenceType="HasComponent">ns=1;i=7002</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=6062</Reference>
+            <Reference ReferenceType="HasSubtype" IsForward="false">i=58</Reference>
+        </References>
+    </UAObjectType>
+    <UAMethod ParentNodeId="ns=1;i=1002" NodeId="ns=1;i=7002" BrowseName="1:CtrlAccToLightIntensity">
+        <DisplayName>CtrlAccToLightIntensity</DisplayName>
+        <References>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1002</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6060</Reference>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+        </References>
+    </UAMethod>
+    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=7002" ValueRank="1" NodeId="ns=1;i=6060" ArrayDimensions="7" BrowseName="InputArguments">
+        <DisplayName>InputArguments</DisplayName>
+        <References>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=7002</Reference>
+        </References>
+        <Value>
+            <uax:ListOfExtensionObject>
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>i=297</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <uax:Argument>
+                            <uax:Name>RuleId</uax:Name>
+                            <uax:DataType>
+                                <uax:Identifier>i=5</uax:Identifier>
+                            </uax:DataType>
+                            <uax:ValueRank>-1</uax:ValueRank>
+                            <uax:ArrayDimensions/>
+                            <uax:Description/>
+                        </uax:Argument>
+                    </uax:Body>
+                </uax:ExtensionObject>
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>i=297</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <uax:Argument>
+                            <uax:Name>CtrlObjId</uax:Name>
+                            <uax:DataType>
+                                <uax:Identifier>i=5</uax:Identifier>
+                            </uax:DataType>
+                            <uax:ValueRank>-1</uax:ValueRank>
+                            <uax:ArrayDimensions/>
+                            <uax:Description/>
+                        </uax:Argument>
+                    </uax:Body>
+                </uax:ExtensionObject>
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>i=297</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <uax:Argument>
+                            <uax:Name>MeasId</uax:Name>
+                            <uax:DataType>
+                                <uax:Identifier>i=5</uax:Identifier>
+                            </uax:DataType>
+                            <uax:ValueRank>-1</uax:ValueRank>
+                            <uax:ArrayDimensions/>
+                            <uax:Description/>
+                        </uax:Argument>
+                    </uax:Body>
+                </uax:ExtensionObject>
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>i=297</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <uax:Argument>
+                            <uax:Name>LuxOn</uax:Name>
+                            <uax:DataType>
+                                <uax:Identifier>i=5</uax:Identifier>
+                            </uax:DataType>
+                            <uax:ValueRank>-1</uax:ValueRank>
+                            <uax:ArrayDimensions/>
+                            <uax:Description/>
+                        </uax:Argument>
+                    </uax:Body>
+                </uax:ExtensionObject>
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>i=297</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <uax:Argument>
+                            <uax:Name>LuxOff</uax:Name>
+                            <uax:DataType>
+                                <uax:Identifier>i=5</uax:Identifier>
+                            </uax:DataType>
+                            <uax:ValueRank>-1</uax:ValueRank>
+                            <uax:ArrayDimensions/>
+                            <uax:Description/>
+                        </uax:Argument>
+                    </uax:Body>
+                </uax:ExtensionObject>
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>i=297</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <uax:Argument>
+                            <uax:Name>OffsetSunset</uax:Name>
+                            <uax:DataType>
+                                <uax:Identifier>i=5</uax:Identifier>
+                            </uax:DataType>
+                            <uax:ValueRank>-1</uax:ValueRank>
+                            <uax:ArrayDimensions/>
+                            <uax:Description/>
+                        </uax:Argument>
+                    </uax:Body>
+                </uax:ExtensionObject>
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>i=297</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <uax:Argument>
+                            <uax:Name>OffsetDawn</uax:Name>
+                            <uax:DataType>
+                                <uax:Identifier>i=5</uax:Identifier>
+                            </uax:DataType>
+                            <uax:ValueRank>-1</uax:ValueRank>
+                            <uax:ArrayDimensions/>
+                            <uax:Description/>
+                        </uax:Argument>
+                    </uax:Body>
+                </uax:ExtensionObject>
+            </uax:ListOfExtensionObject>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="MartemRuleDataType" ParentNodeId="ns=1;i=1002" ValueRank="1" NodeId="ns=1;i=6062" BrowseName="1:RuleDiagnosticsArray" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>RuleDiagnosticsArray</DisplayName>
+        <References>
+            <Reference ReferenceType="HasModellingRule">i=78</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=2004</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1002</Reference>
+        </References>
+        <Value>
+            <uax:ExtensionObject>
+                <uax:TypeId>
+                    <uax:Identifier>ns=1;i=5004</uax:Identifier>
+                </uax:TypeId>
+                <uax:Body>
+                    <MartemRuleDataType xmlns="http://martem.eu/LCBC/Types.xsd">
+                        <InputArguments/>
+                    </MartemRuleDataType>
+                </uax:Body>
+            </uax:ExtensionObject>
+        </Value>
+    </UAVariable>
+    <UAObject NodeId="ns=1;i=5002" BrowseName="1:LCBC">
+        <DisplayName>LCBC</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=61</Reference>
+            <Reference ReferenceType="Organizes" IsForward="false">i=85</Reference>
+            <Reference ReferenceType="Organizes">ns=1;i=5000</Reference>
+        </References>
+    </UAObject>
+    <UAObject NodeId="ns=1;i=5000" BrowseName="1:MartemRules">
+        <DisplayName>MartemRules</DisplayName>
+        <References>
+            <Reference ReferenceType="HasComponent">ns=1;i=7001</Reference>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=1002</Reference>
+            <Reference ReferenceType="HasComponent">ns=1;i=6002</Reference>
+            <Reference ReferenceType="Organizes" IsForward="false">ns=1;i=5002</Reference>
+        </References>
+    </UAObject>
+    <UAMethod ParentNodeId="ns=1;i=5000" NodeId="ns=1;i=7001" BrowseName="1:CtrlAccToLightIntensity" MethodDeclarationId="ns=1;i=7002">
+        <DisplayName>CtrlAccToLightIntensity</DisplayName>
+        <References>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5000</Reference>
+            <Reference ReferenceType="HasProperty">ns=1;i=6001</Reference>
+        </References>
+    </UAMethod>
+    <UAVariable DataType="Argument" ParentNodeId="ns=1;i=7001" ValueRank="1" NodeId="ns=1;i=6001" ArrayDimensions="7" BrowseName="InputArguments">
+        <DisplayName>InputArguments</DisplayName>
+        <References>
+            <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=7001</Reference>
+            <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
+        </References>
+        <Value>
+            <uax:ListOfExtensionObject>
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>i=297</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <uax:Argument>
+                            <uax:Name>RuleId</uax:Name>
+                            <uax:DataType>
+                                <uax:Identifier>i=5</uax:Identifier>
+                            </uax:DataType>
+                            <uax:ValueRank>-1</uax:ValueRank>
+                            <uax:ArrayDimensions/>
+                            <uax:Description/>
+                        </uax:Argument>
+                    </uax:Body>
+                </uax:ExtensionObject>
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>i=297</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <uax:Argument>
+                            <uax:Name>CtrlObjId</uax:Name>
+                            <uax:DataType>
+                                <uax:Identifier>i=5</uax:Identifier>
+                            </uax:DataType>
+                            <uax:ValueRank>-1</uax:ValueRank>
+                            <uax:ArrayDimensions/>
+                            <uax:Description/>
+                        </uax:Argument>
+                    </uax:Body>
+                </uax:ExtensionObject>
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>i=297</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <uax:Argument>
+                            <uax:Name>MeasId</uax:Name>
+                            <uax:DataType>
+                                <uax:Identifier>i=5</uax:Identifier>
+                            </uax:DataType>
+                            <uax:ValueRank>-1</uax:ValueRank>
+                            <uax:ArrayDimensions/>
+                            <uax:Description/>
+                        </uax:Argument>
+                    </uax:Body>
+                </uax:ExtensionObject>
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>i=297</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <uax:Argument>
+                            <uax:Name>LuxOn</uax:Name>
+                            <uax:DataType>
+                                <uax:Identifier>i=5</uax:Identifier>
+                            </uax:DataType>
+                            <uax:ValueRank>-1</uax:ValueRank>
+                            <uax:ArrayDimensions/>
+                            <uax:Description/>
+                        </uax:Argument>
+                    </uax:Body>
+                </uax:ExtensionObject>
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>i=297</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <uax:Argument>
+                            <uax:Name>LuxOff</uax:Name>
+                            <uax:DataType>
+                                <uax:Identifier>i=5</uax:Identifier>
+                            </uax:DataType>
+                            <uax:ValueRank>-1</uax:ValueRank>
+                            <uax:ArrayDimensions/>
+                            <uax:Description/>
+                        </uax:Argument>
+                    </uax:Body>
+                </uax:ExtensionObject>
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>i=297</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <uax:Argument>
+                            <uax:Name>OffsetSunset</uax:Name>
+                            <uax:DataType>
+                                <uax:Identifier>i=5</uax:Identifier>
+                            </uax:DataType>
+                            <uax:ValueRank>-1</uax:ValueRank>
+                            <uax:ArrayDimensions/>
+                            <uax:Description/>
+                        </uax:Argument>
+                    </uax:Body>
+                </uax:ExtensionObject>
+                <uax:ExtensionObject>
+                    <uax:TypeId>
+                        <uax:Identifier>i=297</uax:Identifier>
+                    </uax:TypeId>
+                    <uax:Body>
+                        <uax:Argument>
+                            <uax:Name>OffsetDawn</uax:Name>
+                            <uax:DataType>
+                                <uax:Identifier>i=5</uax:Identifier>
+                            </uax:DataType>
+                            <uax:ValueRank>-1</uax:ValueRank>
+                            <uax:ArrayDimensions/>
+                            <uax:Description/>
+                        </uax:Argument>
+                    </uax:Body>
+                </uax:ExtensionObject>
+            </uax:ListOfExtensionObject>
+        </Value>
+    </UAVariable>
+    <UAVariable DataType="MartemRuleDataType" ParentNodeId="ns=1;i=5000" ValueRank="1" NodeId="ns=1;i=6002" BrowseName="1:RuleDiagnosticsArray" UserAccessLevel="3" AccessLevel="3">
+        <DisplayName>RuleDiagnosticsArray</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">ns=1;i=2004</Reference>
+            <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=5000</Reference>
+        </References>
+        <Value>
+            <uax:ExtensionObject>
+                <uax:TypeId>
+                    <uax:Identifier>ns=1;i=5004</uax:Identifier>
+                </uax:TypeId>
+                <uax:Body>
+                    <MartemRuleDataType xmlns="http://martem.eu/LCBC/Types.xsd">
+                        <InputArguments/>
+                    </MartemRuleDataType>
+                </uax:Body>
+            </uax:ExtensionObject>
+        </Value>
+    </UAVariable>
+    <UAObject SymbolicName="DefaultBinary" NodeId="ns=1;i=5001" BrowseName="Default Binary">
+        <DisplayName>Default Binary</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=76</Reference>
+            <Reference ReferenceType="HasEncoding" IsForward="false">ns=1;i=3002</Reference>
+            <Reference ReferenceType="HasDescription">ns=1;i=6061</Reference>
+        </References>
+    </UAObject>
+    <UAObject SymbolicName="DefaultXml" NodeId="ns=1;i=5004" BrowseName="Default XML">
+        <DisplayName>Default XML</DisplayName>
+        <References>
+            <Reference ReferenceType="HasTypeDefinition">i=76</Reference>
+            <Reference ReferenceType="HasEncoding" IsForward="false">ns=1;i=3002</Reference>
+            <Reference ReferenceType="HasDescription">ns=1;i=6064</Reference>
+        </References>
+    </UAObject>
+</UANodeSet>
