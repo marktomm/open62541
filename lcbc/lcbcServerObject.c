@@ -4,41 +4,29 @@
 
 #define MARTEM_NS 2
 
+/* ID was arbitrarily set by GUI modeler */
+static UA_UInt32 LcbcFolderNumericId = 5002;
+static UA_NodeId LcbcFolderNodeId = {MARTEM_NS, UA_NODEIDTYPE_NUMERIC, {5002}};
+
 // Rules
-
-// EXAMPLES OF METHOD DEFS FROM lcbc_feeder1.c
-/* Rule1 - ns=1;i=7001 */
-static UA_StatusCode EXAMPLE_function_lcbc_feeder1_2_begin(UA_Server *server, UA_UInt16* ns) 
+static UA_StatusCode RuleMethodCallbackDigital(UA_Server *server,
+                         const UA_NodeId *sessionId, void *sessionHandle,
+                         const UA_NodeId *methodId, void *methodContext,
+                         const UA_NodeId *objectId, void *objectContext,
+                         size_t inputSize, const UA_Variant *input,
+                         size_t outputSize, UA_Variant *output) 
 {
+    UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "RuleMethodCallbackDigital inputSize: %lu, input->arrayLength: %lu, input->arrayDimensionsSize: %lu", inputSize, input->arrayLength, input->arrayDimensionsSize);
 
-    UA_StatusCode retVal = UA_STATUSCODE_GOOD;
-    UA_MethodAttributes attr = UA_MethodAttributes_default;
-    attr.executable = true;
-    attr.userExecutable = true;
-    attr.displayName = UA_LOCALIZEDTEXT("", "Rule1");
-    attr.description = UA_LOCALIZEDTEXT("", "");
-    attr.writeMask = 0;
-    attr.userWriteMask = 0;
+    // UA_Double* inputArr = UA_Array_new(input->arrayLength, &UA_TYPES[UA_TYPES_DOUBLE]);
+    UA_Double* inputArr = input->data;
+    UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "RuleMethodCallbackDigital input data: %g, %g", inputArr[0], inputArr[1]);
 
-    retVal |= UA_Server_addNode_begin(server, UA_NODECLASS_METHOD,
-                UA_NODEID_NUMERIC(ns[1], 7001),
-                UA_NODEID_NUMERIC(ns[1], 5003),
-                UA_NODEID_NUMERIC(ns[0], 47),
-                UA_QUALIFIEDNAME(ns[1], "Rule1"),
-                UA_NODEID_NULL,
-                (const UA_NodeAttributes*)&attr, &UA_TYPES[UA_TYPES_METHODATTRIBUTES], NULL, NULL);
+    /// Success: all arguments are correct
+    /// Add entry to RuleDiagnostics
 
-    return retVal;
+    return UA_STATUSCODE_GOOD;
 }
-
-static UA_StatusCode EXAMPLE_function_lcbc_feeder1_2_finish(UA_Server *server, UA_UInt16* ns) 
-{
-
-    return UA_Server_addMethodNode_finish(server, 
-                                            UA_NODEID_NUMERIC(ns[1], 7001), 
-                                            NULL, 0, NULL, 0, NULL);
-}
-// EXAMPLES OF METHOD DEFS FROM lcbc_feeder1.c END
 
 // main
 UA_Boolean running = true;
@@ -65,6 +53,159 @@ int main(void)
         UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "LCBC conf failed");
         return (int)lcbcConfRet;
     }
+
+    /** Create MartemRulesType TypeDefinitionNode START **/
+
+    UA_StatusCode rulesTypeDefRetVal = UA_STATUSCODE_GOOD;
+    const UA_UInt32 MartemRulesObjectTypeNumericId = 30000;
+    UA_NodeId MartemRulesObjectTypeNodeId = UA_NODEID_NUMERIC(MARTEM_NS, MartemRulesObjectTypeNumericId);
+
+    const UA_UInt32 MartemRulesCtrlDimmingDoMethodNumericId = 30001;
+    UA_NodeId MartemRulesCtrlDimmingDoMethodNodeId = UA_NODEID_NUMERIC(MARTEM_NS, MartemRulesCtrlDimmingDoMethodNumericId);
+
+    const UA_UInt32 MartemRulesRuleDiagnosticsVariableNumericId = 30002;
+    UA_NodeId MartemRulesRuleDiagnosticsVariableNodeId = UA_NODEID_NUMERIC(MARTEM_NS, MartemRulesRuleDiagnosticsVariableNumericId);
+
+    /* Add MartesRules ObjetType Node to BaseObjectType with hasSubType Reference */
+    UA_ObjectTypeAttributes MartemRulesObjectTypeAttr = UA_ObjectTypeAttributes_default;
+    MartemRulesObjectTypeAttr.displayName = UA_LOCALIZEDTEXT("en-US", "MartemRulesType");
+    rulesTypeDefRetVal |= UA_Server_addObjectTypeNode(server, MartemRulesObjectTypeNodeId,
+                                UA_NODEID_NUMERIC(0, UA_NS0ID_BASEOBJECTTYPE),
+                                UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
+                                UA_QUALIFIEDNAME(MARTEM_NS, "MartemRulesType"), 
+                                MartemRulesObjectTypeAttr,
+                                NULL, NULL);
+
+    /* Add example Rule Method to MartemRulesType */
+
+    UA_MethodAttributes attr = UA_MethodAttributes_default;
+    attr.executable = true;
+    attr.userExecutable = true;
+    attr.displayName = UA_LOCALIZEDTEXT("", "CtrlDimmingDO");
+    attr.description = UA_LOCALIZEDTEXT("", "");
+    attr.writeMask = 0;
+    attr.userWriteMask = 0;
+    rulesTypeDefRetVal |= UA_Server_addNode_begin(server, UA_NODECLASS_METHOD,
+        MartemRulesCtrlDimmingDoMethodNodeId,
+        MartemRulesObjectTypeNodeId,
+        UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
+        UA_QUALIFIEDNAME(MARTEM_NS, "CtrlDimmingDO"),
+        UA_NODEID_NULL,
+        (const UA_NodeAttributes*)&attr, &UA_TYPES[UA_TYPES_METHODATTRIBUTES], NULL, NULL);
+
+    /// Make the Rule Method mandatory
+    rulesTypeDefRetVal |= UA_Server_addReference(server, MartemRulesCtrlDimmingDoMethodNodeId, 
+                            UA_NODEID_NUMERIC(0, UA_NS0ID_HASMODELLINGRULE), 
+                            UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true);
+
+    /// input args
+    UA_Argument inputArgument;
+    UA_Argument_init(&inputArgument);
+    inputArgument.description = UA_LOCALIZEDTEXT("en-US", "Array of Double");
+    inputArgument.name = UA_STRING("CmdControlDoubleArray");
+    inputArgument.dataType = UA_TYPES[UA_TYPES_DOUBLE].typeId;
+    inputArgument.valueRank = 1; /* array */
+    // UA_UInt32 arrayDims[1] = {2};
+    // inputArgument.arrayDimensions = arrayDims;
+    // inputArgument.arrayDimensionsSize = 1;
+    
+
+    /// output args
+    // UA_Argument outputArgument;
+    // UA_Argument_init(&outputArgument);
+    // outputArgument.description = UA_LOCALIZEDTEXT("en-US", "A Byte");
+    // outputArgument.name = UA_STRING("CmdResultByte");
+    // outputArgument.dataType = UA_TYPES[UA_TYPES_BYTE].typeId;
+    // outputArgument.valueRank = -1; /* scalar */
+
+    rulesTypeDefRetVal |= UA_Server_addMethodNode_finish(server, 
+        MartemRulesCtrlDimmingDoMethodNodeId,
+        RuleMethodCallbackDigital, 1, &inputArgument, 0, NULL);
+
+    /* Add RuleDiagnostics Variable to MartemRulesType to record enabled Rules*/
+
+    UA_VariableAttributes ruleDiagnosticsAttr = UA_VariableAttributes_default;
+    ruleDiagnosticsAttr.displayName = UA_LOCALIZEDTEXT("en-US", "RuleDiagnostics");
+    ruleDiagnosticsAttr.valueRank = -1;
+    rulesTypeDefRetVal |= UA_Server_addVariableNode(server, MartemRulesRuleDiagnosticsVariableNodeId, 
+                            MartemRulesObjectTypeNodeId,
+                            UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
+                            UA_QUALIFIEDNAME(MARTEM_NS, "RuleDiagnostics"),
+                            UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE), 
+                            ruleDiagnosticsAttr, 
+                            NULL, NULL);
+
+    /// Make the RuleDiagnostics Variable mandatory
+    rulesTypeDefRetVal |= UA_Server_addReference(server, MartemRulesRuleDiagnosticsVariableNodeId, 
+                            UA_NODEID_NUMERIC(0, UA_NS0ID_HASMODELLINGRULE), 
+                            UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true);
+
+    if(UA_STATUSCODE_GOOD != rulesTypeDefRetVal) {
+        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "rulesTypeDef conf failed: %s", UA_StatusCode_name(rulesTypeDefRetVal));
+        return (int)rulesTypeDefRetVal;
+    }
+
+    /** Create MartemRulesType TypeDefinitionNode END **/
+
+
+
+    /** Create RuleDiagnostics Entry TypeDefinitionNode START **/
+
+    UA_StatusCode ruleDiagnosticsEntryTypeDefRetVal = UA_STATUSCODE_GOOD;
+    const UA_UInt32 RulesVariableTypeNumericId = 30003;
+    UA_NodeId RulesVariableTypeNodeId = UA_NODEID_NUMERIC(MARTEM_NS, RulesVariableTypeNumericId);
+
+    const UA_UInt32 RuleDiagnosticsEntryNumericId = 30004;
+    UA_NodeId RuleDiagnosticsEntryNodeId = UA_NODEID_NUMERIC(MARTEM_NS, RuleDiagnosticsEntryNumericId);
+
+    UA_VariableTypeAttributes ruleDiagnosticsEntryTypeDefAttr = UA_VariableTypeAttributes_default;
+    ruleDiagnosticsEntryTypeDefAttr.displayName = UA_LOCALIZEDTEXT("en-US", "MartremRuleDiagnosticsType");
+    ruleDiagnosticsEntryTypeDefAttr.valueRank = -1;
+    ruleDiagnosticsEntryTypeDefRetVal |= UA_Server_addVariableTypeNode(server, RulesVariableTypeNodeId, 
+                            UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE),
+                            UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
+                            UA_QUALIFIEDNAME(MARTEM_NS, "MartremRuleDiagnosticsType"),
+                            UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE), 
+                            ruleDiagnosticsEntryTypeDefAttr, 
+                            NULL, NULL);
+
+    UA_VariableAttributes inputArgumentsAttr = UA_VariableAttributes_default;
+    inputArgumentsAttr.displayName = UA_LOCALIZEDTEXT("en-US", "RuleDiagnosticsEntry");
+    inputArgumentsAttr.dataType = UA_TYPES[UA_TYPES_DOUBLE].typeId;
+    inputArgumentsAttr.valueRank = 1;
+
+    UA_Double zero[2] = {0.0, 0.0};
+    UA_Variant_setArray(&inputArgumentsAttr.value, zero, 2, &UA_TYPES[UA_TYPES_DOUBLE]);
+
+    ruleDiagnosticsEntryTypeDefRetVal |= UA_Server_addVariableNode(server, RuleDiagnosticsEntryNodeId, 
+                            RulesVariableTypeNodeId,
+                            UA_NODEID_NUMERIC(0, UA_NS0ID_HASPROPERTY),
+                            UA_QUALIFIEDNAME(MARTEM_NS, "RuleDiagnosticsEntry"),
+                            UA_NODEID_NUMERIC(0, UA_NS0ID_PROPERTYTYPE), 
+                            inputArgumentsAttr, 
+                            NULL, NULL);
+
+    if(UA_STATUSCODE_GOOD != ruleDiagnosticsEntryTypeDefRetVal) {
+        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "ruleDiagnosticsEntryTypeDef conf failed: %s", UA_StatusCode_name(ruleDiagnosticsEntryTypeDefRetVal));
+        return (int)ruleDiagnosticsEntryTypeDefRetVal;
+    }
+
+    /** Create RuleDiagnostics Entry TypeDefinitionNode END **/
+
+
+
+    /** Add MartemRules Object to LCBC Folder START **/
+
+    UA_ObjectAttributes oAttr = UA_ObjectAttributes_default;
+    oAttr.displayName = UA_LOCALIZEDTEXT("en-US", "Rules");
+    UA_Server_addObjectNode(server, UA_NODEID_NULL,
+                            LcbcFolderNodeId,
+                            UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES),
+                            UA_QUALIFIEDNAME(MARTEM_NS, "Rules"),
+                            MartemRulesObjectTypeNodeId, /// this refers to the object type identifier
+                            oAttr, NULL, NULL);
+
+    /** Add MartemRules Object to LCBC Folder END **/
 
     UA_StatusCode retval = UA_Server_run(server, &running);
     UA_Server_delete(server);
