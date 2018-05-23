@@ -26,3 +26,13 @@
     rm -v ${LCBC_ROOT}/bin/lcbcServerExample
     gcc --std=c99 ${OPEN_OPC_ROOT}/build/open62541.c ${LCBC_ROOT}/lcbcServerExample.c ${LCBC_ROOT}/gen/example.c -o ${LCBC_ROOT}/bin/lcbcServerExample
 }
+
+[[ -z ${GEN_MULTI_NS} ]] || {
+    rm -v ${LCBC_ROOT}/bin/lcbcServerMultiNs
+    gcc --std=c99 ${OPEN_OPC_ROOT}/build/open62541.c ${LCBC_ROOT}/lcbcServerMultiNs.c ${LCBC_ROOT}/manual_lcbc_ns1.c ${LCBC_ROOT}/manual_lcbc_ns2.c ${LCBC_ROOT}/constants.c ${LCBC_ROOT}/add.c ${LCBC_ROOT}/callbacks.c -o ${LCBC_ROOT}/bin/lcbcServerMultiNs
+}
+
+[[ -z ${GEN_MULTI_NS_ORIG} ]] || {
+    rm -v ${LCBC_ROOT}/bin/lcbcServerMultiNs
+    gcc --std=c99 ${OPEN_OPC_ROOT}/build/open62541.c ${LCBC_ROOT}/gen/lcbc_ns1.c ${LCBC_ROOT}/gen/lcbc_ns2.c ${LCBC_ROOT}/constants.c ${LCBC_ROOT}/add.c ${LCBC_ROOT}/callbacks.c ${LCBC_ROOT}/lcbcServerMultiNs.c -o ${LCBC_ROOT}/bin/lcbcServerMultiNs
+}
