@@ -111,37 +111,12 @@ UA_StatusCode RuleMethodCallbackDigital(UA_Server *server,
 
 
     /// Create an entry in RuleDiagnostics
+    UA_StatusCode addNode_Status = UA_STATUSCODE_GOOD;
 
     /// First find RuleDiagnosticsEntry TypeDef NodeId
     UA_NodeId ObjectType_NodeId;
-    {
-        UA_RelativePathElement rpe;
-        UA_RelativePathElement_init(&rpe);
-        rpe.referenceTypeId = UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE);
-        rpe.isInverse = false;
-        rpe.includeSubtypes = false;
-        rpe.targetName = UA_QUALIFIEDNAME(LCBC1_NAMESPACE, "MartemRuleDiagnosticsEntryType");
+    addNode_Status |= TranslateBrowsePathToNodeIds(server, &ObjectType_NodeId, UA_NS0ID_HASSUBTYPE, LCBC1_NAMESPACE, "MartemRuleDiagnosticsEntryType", UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE));
 
-        UA_BrowsePath bp;
-        UA_BrowsePath_init(&bp);
-        bp.startingNode = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEDATAVARIABLETYPE); /// Start @ Root->Types->VariableTypes->BaseVariableType->BaseDataVariableType
-        bp.relativePath.elementsSize = 1;
-        bp.relativePath.elements = &rpe;
-
-        UA_BrowsePathResult bpr = UA_Server_translateBrowsePathToNodeIds(server, &bp);
-
-        if(bpr.statusCode != UA_STATUSCODE_GOOD || bpr.targetsSize < 1) {
-            UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "RuleMethodCallbackDigital | Find the right TypeDefNode (MartemRuleDiagnosticsEntryType) failed: %s", UA_StatusCode_name(bpr.statusCode));
-            return (int)bpr.statusCode;
-        } 
-
-        /// get what is found
-        UA_NodeId_copy(&bpr.targets[0].targetId.nodeId, &ObjectType_NodeId);
-
-        UA_BrowsePathResult_deleteMembers(&bpr);
-    }
-
-    UA_StatusCode addNode_Status = UA_STATUSCODE_GOOD;
     UA_NodeId entryId;
 
     char ruleEntryString[100];
@@ -168,31 +143,11 @@ UA_StatusCode RuleMethodCallbackDigital(UA_Server *server,
 
     /// find InpoutArguments Property NodeId in newly created Rule entry
     UA_NodeId InputArgumentsNodeId;
-    {
-        UA_RelativePathElement rpe;
-        UA_RelativePathElement_init(&rpe);
-        rpe.referenceTypeId = UA_NODEID_NUMERIC(0, UA_NS0ID_HASPROPERTY);
-        rpe.isInverse = false;
-        rpe.includeSubtypes = false;
-        rpe.targetName = UA_QUALIFIEDNAME(LCBC1_NAMESPACE, "InputArguments");
+    addNode_Status |= TranslateBrowsePathToNodeIds(server, &InputArgumentsNodeId, UA_NS0ID_HASPROPERTY, LCBC1_NAMESPACE, "InputArguments", entryId);
 
-        UA_BrowsePath bp;
-        UA_BrowsePath_init(&bp);
-        bp.startingNode = entryId;
-        bp.relativePath.elementsSize = 1;
-        bp.relativePath.elements = &rpe;
-
-        UA_BrowsePathResult bpr = UA_Server_translateBrowsePathToNodeIds(server, &bp);
-
-        if(bpr.statusCode != UA_STATUSCODE_GOOD || bpr.targetsSize < 1) {
-            UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "RuleMethodCallbackDigital | UA_Server_translateBrowsePathToNodeIds failed: %s", UA_StatusCode_name(bpr.statusCode));
-            UA_BrowsePathResult_deleteMembers(&bpr);
-            return (int)bpr.statusCode;
-        }
-
-        
-        UA_NodeId_copy(&bpr.targets[0].targetId.nodeId, &InputArgumentsNodeId);
-        UA_BrowsePathResult_deleteMembers(&bpr);
+    if(addNode_Status != UA_STATUSCODE_GOOD) {
+        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "RuleMethodCallbackDigital | TranslateBrowsePathToNodeIds failed: %s", UA_StatusCode_name(addNode_Status));
+        return addNode_Status;
     }
 
     /// add input arguments to InputArguments in new Rule entry

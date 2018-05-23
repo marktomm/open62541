@@ -159,32 +159,7 @@ UA_StatusCode Add_RulesObject_ToFolder(UA_Server *server, const UA_NodeId *folde
 
     /// Find the right TypeDefNode
     UA_NodeId ObjectType_NodeId;
-    {
-        UA_RelativePathElement rpe;
-        UA_RelativePathElement_init(&rpe);
-        rpe.referenceTypeId = UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE);
-        rpe.isInverse = false;
-        rpe.includeSubtypes = false;
-        rpe.targetName = UA_QUALIFIEDNAME(typeDefNameSpace, "MartemRulesType");
-
-        UA_BrowsePath bp;
-        UA_BrowsePath_init(&bp);
-        bp.startingNode = UA_NODEID_NUMERIC(0, UA_NS0ID_BASEOBJECTTYPE); /// Start @ Root->Types->ObjectTypes->BaseObjectType
-        bp.relativePath.elementsSize = 1;
-        bp.relativePath.elements = &rpe;
-
-        UA_BrowsePathResult bpr = UA_Server_translateBrowsePathToNodeIds(server, &bp);
-
-        if(bpr.statusCode != UA_STATUSCODE_GOOD || bpr.targetsSize < 1) {
-            UA_LOG_FATAL(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "AddRulesObject_ToFolder | Find the right TypeDefNode (MartemRulesType) failed: %s", UA_StatusCode_name(bpr.statusCode));
-            return (int)bpr.statusCode;
-        } 
-
-        ret |= UA_NodeId_copy(&bpr.targets[0].targetId.nodeId, &ObjectType_NodeId);
-
-        UA_BrowsePathResult_deleteMembers(&bpr);
-    }
-    /// end
+    ret |= TranslateBrowsePathToNodeIds(server, &ObjectType_NodeId, UA_NS0ID_HASSUBTYPE, typeDefNameSpace, "MartemRulesType", UA_NODEID_NUMERIC(0, UA_NS0ID_BASEOBJECTTYPE));
 
     /// add specified Object to Folder 
     UA_NodeId instanceId;
@@ -209,59 +184,12 @@ UA_StatusCode Add_RulesObject_ToFolder(UA_Server *server, const UA_NodeId *folde
 
     /// find RuleDiagnostics Variable NodeId in newly added Rules Object in LCBC
     UA_NodeId browseResult_RuleDiagNostics_Instance;
-    {
-        UA_RelativePathElement rpe;
-        UA_RelativePathElement_init(&rpe);
-        rpe.referenceTypeId = UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT);
-        rpe.isInverse = false;
-        rpe.includeSubtypes = false;
-        rpe.targetName = UA_QUALIFIEDNAME(typeDefNameSpace, "RuleDiagnostics");
-
-        UA_BrowsePath bp;
-        UA_BrowsePath_init(&bp);
-        bp.startingNode = instanceId; /// Start @ Root->Objects->LCBC<ID>->Rules
-        bp.relativePath.elementsSize = 1;
-        bp.relativePath.elements = &rpe;
-
-        UA_BrowsePathResult bpr = UA_Server_translateBrowsePathToNodeIds(server, &bp);
-
-        if(bpr.statusCode != UA_STATUSCODE_GOOD || bpr.targetsSize < 1) {
-            UA_LOG_FATAL(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "AddRulesObject_ToFolder | browseResult_RuleDiagNostics_Instance failed: %s", UA_StatusCode_name(bpr.statusCode));
-            UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "AddRulesObject_ToFolder | target qns: %d, start ns: %d id: %d", addToNameSpace, instanceId.namespaceIndex, instanceId.identifier.numeric);
-            return (int)bpr.statusCode;
-        }
-
-        ret |= UA_NodeId_copy(&bpr.targets[0].targetId.nodeId, &browseResult_RuleDiagNostics_Instance); 
-        UA_BrowsePathResult_deleteMembers(&bpr);
-    }
+    ret |= TranslateBrowsePathToNodeIds(server, &browseResult_RuleDiagNostics_Instance, UA_NS0ID_HASCOMPONENT, typeDefNameSpace, "RuleDiagnostics", instanceId);
 
     /// find CtrlDimmingDO Method NodeId in newly added Rules Object in LCBC
     UA_NodeId browseResult_Rule_Method;
-    {
-        UA_RelativePathElement rpe;
-        UA_RelativePathElement_init(&rpe);
-        rpe.referenceTypeId = UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT);
-        rpe.isInverse = false;
-        rpe.includeSubtypes = false;
-        rpe.targetName = UA_QUALIFIEDNAME(typeDefNameSpace, "CtrlDimmingDO");
-
-        UA_BrowsePath bp;
-        UA_BrowsePath_init(&bp);
-        bp.startingNode = instanceId; /// Start @ Root->Objects->LCBC<ID>->Rules
-        bp.relativePath.elementsSize = 1;
-        bp.relativePath.elements = &rpe;
-
-        UA_BrowsePathResult bpr = UA_Server_translateBrowsePathToNodeIds(server, &bp);
-
-        if(bpr.statusCode != UA_STATUSCODE_GOOD || bpr.targetsSize < 1) {
-            UA_LOG_FATAL(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "AddRulesObject_ToFolder | browseResult_Rule_Method failed: %s", UA_StatusCode_name(bpr.statusCode));
-            return (int)bpr.statusCode;
-        }
-
-        ret |= UA_NodeId_copy(&bpr.targets[0].targetId.nodeId, &browseResult_Rule_Method); 
-        UA_BrowsePathResult_deleteMembers(&bpr);
-    }
-
+    ret |= TranslateBrowsePathToNodeIds(server, &browseResult_Rule_Method, UA_NS0ID_HASCOMPONENT, typeDefNameSpace, "CtrlDimmingDO", instanceId);
+    
     /// set RuleDiagNostics_Instance as Context to Rule_Method; E_ADD_DIAGNOSTICS
     lcbc_ctrl_ctx* context;
     ret |= UA_Server_getNodeContext(server, browseResult_Rule_Method, (void**) &context);

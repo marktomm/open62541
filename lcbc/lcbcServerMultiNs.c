@@ -34,6 +34,11 @@ int main(void)
     const UA_NodeId Lcbc1FolderNodeId = UA_NODEID_NUMERIC(LCBC1_NAMESPACE, LcbcFolderNumericId);
     const UA_NodeId Lcbc2FolderNodeId = UA_NODEID_NUMERIC(LCBC2_NAMESPACE, LcbcFolderNumericId);
 
+    /// change Cabinet DisplayName of LCBC2 to Sillamae
+    UA_NodeId lcbc2Cabinet;
+    assertStatus(TranslateBrowsePathToNodeIds(server, &lcbc2Cabinet, UA_NS0ID_HASCOMPONENT, LCBC1_NAMESPACE, "Cabinet", Lcbc2FolderNodeId));
+    assertStatus(UA_Server_writeDisplayName(server, lcbc2Cabinet, UA_LOCALIZEDTEXT("en-US", "Sillamae")));
+
     assertStatus(Add_RulesObject_ToFolder(server, &Lcbc1FolderNodeId));
     assertStatus(Add_RulesObject_ToFolder(server, &Lcbc2FolderNodeId));
 

@@ -24,3 +24,4 @@
 /// Various
 void assertStatus(UA_StatusCode st);
 void createDigitalMethodArguments(UA_Argument *inputArgument, UA_Argument *outputArgument) ;
+UA_StatusCode TranslateBrowsePathToNodeIds(UA_Server* server, UA_NodeId* result, const unsigned long referenceTypeId, const UA_UInt16 target_qualifiedName_Ns, char * const target_qualifiedName, const UA_NodeId source_node);
