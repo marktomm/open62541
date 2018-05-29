@@ -6,7 +6,7 @@ sudo rm -rvf opc-ua-c
 
 git clone https://github.com/marktomm/open62541.git opc-ua-c
 cd opc-ua-c
-git checkout lcbc
+git checkout lcbc-single
 git submodule update --init --recursive
 mkdir build
 cd build
