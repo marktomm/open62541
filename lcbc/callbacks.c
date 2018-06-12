@@ -13,7 +13,7 @@ UA_StatusCode controlMethodCallbackDigital(UA_Server *server,
     lcbc_ctrl_ctx *context = (lcbc_ctrl_ctx*)methodContext;
 
     if(context == NULL) {
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "controlMethodCallbackDigital | context unset");
+        LOG_INFO("controlMethodCallbackDigital | context unset");
         return UA_STATUSCODE_BADWAITINGFORINITIALDATA;
     }
 
@@ -23,11 +23,11 @@ UA_StatusCode controlMethodCallbackDigital(UA_Server *server,
     UA_Byte *manualOverrideVal = (UA_Byte*)manualOverrideVariant.data;
     
     if(*manualOverrideVal != 2) { /// first check if manual override is on
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "controlMethodCallbackDigital | manual override is not active (2), man override ns: %d id: %d val: %d", 
+        LOG_INFO("controlMethodCallbackDigital | manual override is not active (2), man override ns: %d id: %d val: %d", 
                                                             context->NameSpaceIndex, ManualOverrideState_ID, *manualOverrideVal);
         return UA_STATUSCODE_BADUSERACCESSDENIED;
     } else if(*inputByte < 1 || *inputByte > 2) { /// check input value
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "controlMethodCallbackDigital | input invalid, must be 1 or 2, val: %d", *inputByte);
+        LOG_INFO("controlMethodCallbackDigital | input invalid, must be 1 or 2, val: %d", *inputByte);
         return UA_STATUSCODE_BADOUTOFRANGE;
     } else { /// all ok
         UA_NodeId stateVarNodeId = UA_NODEID_NUMERIC(context->NameSpaceIndex, context->StateVarNodeId);
@@ -38,7 +38,7 @@ UA_StatusCode controlMethodCallbackDigital(UA_Server *server,
         UA_Variant_setScalar(&stateVal, &stateNum, &UA_TYPES[UA_TYPES_BYTE]);
         UA_Server_writeValue(server, stateVarNodeId, stateVal);
 
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "controlMethodCallbackDigital | was called %d, ctx: %d, manual override: %d, manual override type: %d", 
+        LOG_INFO("controlMethodCallbackDigital | was called %d, ctx: %d, manual override: %d, manual override type: %d", 
             *inputByte, 
             context->StateVarNodeId, 
             *manualOverrideVal, 
@@ -60,7 +60,7 @@ UA_StatusCode controlMethodCallbackManual(UA_Server *server,
     lcbc_ctrl_ctx *context = (lcbc_ctrl_ctx*)methodContext;
 
     if(*inputByte < 1 || *inputByte > 2) { /// check input value
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "controlMethodCallbackManual | input invalid, must be 1 or 2, val: %d", *inputByte);
+        LOG_INFO("controlMethodCallbackManual | input invalid, must be 1 or 2, val: %d", *inputByte);
         return UA_STATUSCODE_BADOUTOFRANGE;
     } else { /// all ok
         UA_NodeId stateVarNodeId = UA_NODEID_NUMERIC(context->NameSpaceIndex, context->StateVarNodeId);
@@ -71,7 +71,7 @@ UA_StatusCode controlMethodCallbackManual(UA_Server *server,
         UA_Variant_setScalar(&stateVal, &stateNum, &UA_TYPES[UA_TYPES_BYTE]);
         UA_Server_writeValue(server, stateVarNodeId, stateVal);
 
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "controlMethodCallbackManual | was called %d, ctx: %d", 
+        LOG_INFO("controlMethodCallbackManual | was called %d, ctx: %d", 
             *inputByte, 
             context->StateVarNodeId);
 
@@ -91,12 +91,12 @@ UA_StatusCode RuleMethodCallbackDigital(UA_Server *server,
     int argCnt = context->ArgumentCount;
 
     if(input->arrayLength != argCnt) {
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "RuleMethodCallbackDigital | Expected %d nr of args, got %lu", argCnt, input->arrayLength);
+        LOG_INFO("RuleMethodCallbackDigital | Expected %d nr of args, got %lu", argCnt, input->arrayLength);
         return input->arrayLength < argCnt ? UA_STATUSCODE_BADTOOMANYARGUMENTS : UA_STATUSCODE_BADARGUMENTSMISSING ; 
     }
 
     if( UA_NodeId_isNull(&(context->DiagnosticsNodeId)) ) {
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "RuleMethodCallbackDigital | context not set");
+        LOG_INFO("RuleMethodCallbackDigital | context not set");
         return UA_STATUSCODE_BADWAITINGFORINITIALDATA;
     }
 
@@ -137,7 +137,7 @@ UA_StatusCode RuleMethodCallbackDigital(UA_Server *server,
                             );
 
     if(addNode_Status != UA_STATUSCODE_GOOD) {
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "RuleMethodCallbackDigital | addNode_Status failed: %s", UA_StatusCode_name(addNode_Status));
+        LOG_INFO("RuleMethodCallbackDigital | addNode_Status failed: %s", UA_StatusCode_name(addNode_Status));
         return addNode_Status;
     }
 
@@ -146,7 +146,7 @@ UA_StatusCode RuleMethodCallbackDigital(UA_Server *server,
     addNode_Status |= TranslateBrowsePathToNodeIds(server, &InputArgumentsNodeId, UA_NS0ID_HASPROPERTY, LCBC1_NAMESPACE, "InputArguments", entryId);
 
     if(addNode_Status != UA_STATUSCODE_GOOD) {
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "RuleMethodCallbackDigital | TranslateBrowsePathToNodeIds failed: %s", UA_StatusCode_name(addNode_Status));
+        LOG_INFO("RuleMethodCallbackDigital | TranslateBrowsePathToNodeIds failed: %s", UA_StatusCode_name(addNode_Status));
         return addNode_Status;
     }
 
@@ -164,7 +164,7 @@ UA_StatusCode RuleMethodCallbackDigital(UA_Server *server,
     addInputArgsRetVal = UA_Server_writeValue(server, InputArgumentsNodeId, argVar);
 
     if(addInputArgsRetVal != UA_STATUSCODE_GOOD) {
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "RuleMethodCallbackDigital | addInputArgsRetVal failed: %s", UA_StatusCode_name(addInputArgsRetVal));
+        LOG_INFO("RuleMethodCallbackDigital | addInputArgsRetVal failed: %s", UA_StatusCode_name(addInputArgsRetVal));
         return addInputArgsRetVal;
     }
 

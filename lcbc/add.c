@@ -39,6 +39,12 @@ UA_StatusCode Add_RulesObject_TypeDef(UA_Server *server, UA_UInt32 nameSpace)
         (const UA_NodeAttributes*)&attr, &UA_TYPES[UA_TYPES_METHODATTRIBUTES], NULL, NULL);
 
     /// Make the Rule Method mandatory
+    /*
+    UA_StatusCode
+    UA_Server_addReference(UA_Server *server, const UA_NodeId sourceId,
+                        const UA_NodeId refTypeId,
+                        const UA_ExpandedNodeId targetId, UA_Boolean isForward);
+    */
     addStatus |= UA_Server_addReference(server, CtrlDimmingDo_Method_NodeId, 
                             UA_NODEID_NUMERIC(0, UA_NS0ID_HASMODELLINGRULE), 
                             UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true);
@@ -96,7 +102,7 @@ UA_StatusCode Add_RulesObject_TypeDef(UA_Server *server, UA_UInt32 nameSpace)
                             UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true);
 
     if(UA_STATUSCODE_GOOD != addStatus) {
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "rulesTypeDef conf failed: %s", UA_StatusCode_name(addStatus));
+        LOG_INFO("rulesTypeDef conf failed: %s", UA_StatusCode_name(addStatus));
     }
     return (int)addStatus;
 }
@@ -104,8 +110,7 @@ UA_StatusCode Add_RulesObject_TypeDef(UA_Server *server, UA_UInt32 nameSpace)
 UA_StatusCode Add_RuleDiagnostisEntry_TypeDef(UA_Server *server, UA_UInt32 nameSpace)
 {
     UA_StatusCode addStatus = UA_STATUSCODE_GOOD;
-    const UA_UInt32 ruleDiagnosticsEntryTypeNumericId = 30003;
-    UA_NodeId ruleDiagnosticsEntry_Type_NodeId = UA_NODEID_NUMERIC(nameSpace, ruleDiagnosticsEntryTypeNumericId);
+    UA_NodeId ruleDiagnosticsEntry_Type_NodeId = RULEDIAGNOSTICSENTRY_TYPE_NODEID(nameSpace);
 
     const UA_UInt32 inputArgumentsNumericId = 30004;
     UA_NodeId inputArguments_NodeId = UA_NODEID_NUMERIC(nameSpace, inputArgumentsNumericId);
@@ -143,7 +148,7 @@ UA_StatusCode Add_RuleDiagnostisEntry_TypeDef(UA_Server *server, UA_UInt32 nameS
                                             UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true);
 
     if(UA_STATUSCODE_GOOD != addStatus) {
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "ruleDiagnosticsEntryTypeDef conf failed: %s", UA_StatusCode_name(addStatus));
+        LOG_INFO("ruleDiagnosticsEntryTypeDef conf failed: %s", UA_StatusCode_name(addStatus));
     }
     return (int)addStatus;
 }
@@ -154,7 +159,7 @@ UA_StatusCode Add_RulesObject_ToFolder(UA_Server *server, const UA_NodeId *folde
     UA_StatusCode ret = UA_STATUSCODE_GOOD;
     const UA_UInt16 typeDefNameSpace = LCBC1_NAMESPACE;
     const UA_UInt16 addToNameSpace = folderId->namespaceIndex;
-    UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "target ns: %d typedefns: %d", addToNameSpace, typeDefNameSpace);
+    LOG_INFO("target ns: %d typedefns: %d", addToNameSpace, typeDefNameSpace);
     
 
     /// Find the right TypeDefNode
@@ -180,7 +185,7 @@ UA_StatusCode Add_RulesObject_ToFolder(UA_Server *server, const UA_NodeId *folde
         UA_LOG_FATAL(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "AddRulesObject_ToFolder | addObjectNode failed: %s", UA_StatusCode_name(ret));
         return ret;
     }
-    UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "source ns: %d id: %d, target ns: %d %d", instanceId.namespaceIndex, instanceId.identifier.numeric, addToNameSpace, folderId->namespaceIndex);
+    LOG_INFO("source ns: %d id: %d, target ns: %d %d", instanceId.namespaceIndex, instanceId.identifier.numeric, addToNameSpace, folderId->namespaceIndex);
 
     /// find RuleDiagnostics Variable NodeId in newly added Rules Object in LCBC
     UA_NodeId browseResult_RuleDiagNostics_Instance;
@@ -199,6 +204,31 @@ UA_StatusCode Add_RulesObject_ToFolder(UA_Server *server, const UA_NodeId *folde
 
     ret |= UA_NodeId_copy(&browseResult_RuleDiagNostics_Instance, &(context->DiagnosticsNodeId) );
     context->NameSpaceIndex = folderId->namespaceIndex;
+
+    return ret;
+}
+
+UA_StatusCode Add_Variable_ToServer(UA_Server *server, const UA_NodeId *typeDefNodeId, char* fqdn, char* displayName) 
+{
+    UA_StatusCode ret = UA_STATUSCODE_GOOD;
+    UA_NodeId serverNodeId = SERVER_NODEID;
+
+    LOG_INFO("Add_Variable_ToServer | typedefns: %d, typedefid: %d", typeDefNodeId->namespaceIndex, typeDefNodeId->identifier.numeric);
+
+    /// add specified Variable to Server Object 
+    UA_NodeId instanceId;
+    UA_VariableAttributes oAttr = UA_VariableAttributes_default;
+    oAttr.displayName = UA_LOCALIZEDTEXT("en-US", displayName);
+    ret |= UA_Server_addVariableNode(server, 
+                            UA_NODEID_NULL, /// own NodeId
+                            serverNodeId, /// parent NodeId
+                            UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES), /// reference type; Organizes type for Folder type
+                            UA_QUALIFIEDNAME(0, displayName), /// BrowseName attr
+                            *typeDefNodeId, /// this refers to the Object TypeDefinitionNode
+                            oAttr,  /// attrs 
+                            NULL, /// context unset, but could be set here
+                            &instanceId /// acquire new Variable instance NodeId
+                            );
 
     return ret;
 }

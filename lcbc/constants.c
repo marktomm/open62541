@@ -1,5 +1,115 @@
 #include "constants.h"
 
+/// Node Context
+
+nodeContextContainer* xtor_malloc()
+{
+    nodeContextContainer* p = malloc(sizeof(nodeContextContainer));
+    if(p) {
+        memset(p, 0, sizeof(nodeContextContainer));
+    }
+    
+    return p;
+}
+
+void xtor_free(nodeContextContainer* p)
+{
+    free(p);
+}
+
+UA_StatusCode xtor_addEntry(nodeContext* p, char* string)
+{
+    UA_StatusCode retVal = UA_STATUSCODE_GOOD;
+
+    if(!p || !string) {
+        return UA_STATUSCODE_BADOUTOFMEMORY;
+    }
+
+    p->entries[p->entryCount] = UA_STRING(string);
+    p->entryCount++;
+    return retVal;
+}
+
+UA_String* xtor_getEntry(nodeContext* p, size_t i)
+{
+    if(i >= p->entryCount) {
+        return NULL;
+    }
+
+    return &(p->entries[i]);
+}
+
+#ifdef PTRCTX
+UA_StatusCode ptr_xtor_addEntry(ptrContext* p, char* string)
+{
+    UA_StatusCode retVal = UA_STATUSCODE_GOOD;
+
+    if(!p || !string) {
+        return UA_STATUSCODE_BADOUTOFMEMORY;
+    }
+
+    p->entries[p->entryCount] = UA_STRING(string);
+    p->entryCount++;
+    return retVal;
+}
+
+UA_String* ptr_xtor_getEntry(ptrContext* p, size_t i)
+{
+    if(i >= p->entryCount) {
+        return NULL;
+    }
+
+    return &(p->entries[i]);
+}
+#endif
+
+/// I copy nodeId by value, bc no idea how long it lives
+UA_StatusCode xtor_addNodeContext(nodeContextContainer* p, UA_NodeId nodeId, char* string)
+{
+    UA_StatusCode retVal = UA_STATUSCODE_GOOD;
+
+    if(!p || !string) {
+        return UA_STATUSCODE_BADOUTOFMEMORY;
+    }
+
+    p->contexts[p->contextCount].nodeId = nodeId;
+    xtor_addEntry(&(p->contexts[p->contextCount]), string);
+    p->contextCount++;
+    return retVal;
+}
+
+nodeContext* xtor_getNodeContext(nodeContextContainer* p, const UA_NodeId *nodeId)
+{
+    if(!p || !nodeId) {
+        return NULL;
+    }
+
+    for(size_t it = 0; it < p->contextCount; it++) {
+        if( UA_NodeId_equal(&(p->contexts[it].nodeId), nodeId) ) {
+            return &(p->contexts[it]);
+        }
+    }
+
+    return NULL;
+}
+
+void xtor_setNodeContext(void** nodeCtx, nodeContext* p) 
+{
+    // if(nodeCtx) {
+    //     LOG_ERROR("nodeContext ptrptr NULL");
+    //     return;
+    // } else 
+    if(*nodeCtx) {
+        LOG_WARN("nodeContext ptr not NULL. Rewriting context may lead to data loss ptr: %p", *nodeCtx);
+        return;
+    }
+
+    LOG_INFO("xtor_setNodeContext | ns: %d, NodeId: %d, entryCount: %lu", p->nodeId.namespaceIndex, p->nodeId.identifier.numeric, p->entryCount);
+    *nodeCtx = p;
+}
+
+/// Various TODO: Move somewhere else
+
 void createDigitalMethodArguments(UA_Argument *inputArgument, UA_Argument *outputArgument) 
 {
     UA_Argument_init(inputArgument);
@@ -18,7 +128,7 @@ void createDigitalMethodArguments(UA_Argument *inputArgument, UA_Argument *outpu
 void assertStatus(UA_StatusCode st)
 {
     if(UA_STATUSCODE_GOOD != st) {
-        UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, "LCBC invalid state: %s", UA_StatusCode_name(st));
+        LOG_INFO("LCBC invalid state: %s", UA_StatusCode_name(st));
         exit(144);
     }
 }
