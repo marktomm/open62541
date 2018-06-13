@@ -62,12 +62,12 @@ UA_StatusCode Add_RulesObject_TypeDef(UA_Server *server, UA_UInt32 nameSpace)
         
 
         /// output args
-        // UA_Argument outputArgument;
-        // UA_Argument_init(&outputArgument);
-        // outputArgument.description = UA_LOCALIZEDTEXT("en-US", "A Byte");
-        // outputArgument.name = UA_STRING("CmdResultByte");
-        // outputArgument.dataType = UA_TYPES[UA_TYPES_BYTE].typeId;
-        // outputArgument.valueRank = -1; /* scalar */
+        UA_Argument outputArgument;
+        UA_Argument_init(&outputArgument);
+        outputArgument.description = UA_LOCALIZEDTEXT("en-US", "Boolean");
+        outputArgument.name = UA_STRING("CmdResultBool");
+        outputArgument.dataType = UA_TYPES[UA_TYPES_BOOLEAN].typeId;
+        outputArgument.valueRank = -1; /* scalar */
 
         /// pass required argument count as context
         lcbc_ctrl_ctx *context = (lcbc_ctrl_ctx*) malloc(sizeof(lcbc_ctrl_ctx));
@@ -79,7 +79,7 @@ UA_StatusCode Add_RulesObject_TypeDef(UA_Server *server, UA_UInt32 nameSpace)
 
         addStatus |= UA_Server_addMethodNode_finish(server, 
             methodNodeId,
-            RuleMethodCallbackDigital, 1, &inputArgument, 0, NULL);
+            RuleMethodCallbackDigital, 1, &inputArgument, 1, &outputArgument);
         /// add method finish
     }
 
@@ -117,6 +117,14 @@ UA_StatusCode Add_RulesObject_TypeDef(UA_Server *server, UA_UInt32 nameSpace)
         inputArgument.dataType = UA_TYPES[UA_TYPES_DOUBLE].typeId;
         inputArgument.valueRank = 1; /* array */
 
+        /// output args
+        UA_Argument outputArgument;
+        UA_Argument_init(&outputArgument);
+        outputArgument.description = UA_LOCALIZEDTEXT("en-US", "Boolean");
+        outputArgument.name = UA_STRING("CmdResultBool");
+        outputArgument.dataType = UA_TYPES[UA_TYPES_BOOLEAN].typeId;
+        outputArgument.valueRank = -1; /* scalar */
+
         /// pass required argument count as context
         lcbc_ctrl_ctx *context = (lcbc_ctrl_ctx*) malloc(sizeof(lcbc_ctrl_ctx));
         context->ArgumentCount = 1; /// RuleId
@@ -127,7 +135,7 @@ UA_StatusCode Add_RulesObject_TypeDef(UA_Server *server, UA_UInt32 nameSpace)
 
         addStatus |= UA_Server_addMethodNode_finish(server, 
             methodNodeId,
-            RuleRemoveMethodCallbackDigital, 1, &inputArgument, 0, NULL);
+            RuleRemoveMethodCallbackDigital, 1, &inputArgument, 1, &outputArgument);
         /// add method finish
     }
 

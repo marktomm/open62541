@@ -168,6 +168,10 @@ UA_StatusCode RuleMethodCallbackDigital(UA_Server *server,
         return addInputArgsRetVal;
     }
 
+    /// output
+    UA_Boolean out = true;
+    UA_Variant_setScalarCopy(output, &out, &UA_TYPES[UA_TYPES_BOOLEAN]);
+
     return UA_STATUSCODE_GOOD;
 }
 
@@ -220,6 +224,10 @@ UA_StatusCode RuleRemoveMethodCallbackDigital(UA_Server *server,
         LOG_INFO("RuleRemoveMethodCallbackDigital | UA_Server_deleteNode failed: %s", UA_StatusCode_name(remNode_Status));
         return remNode_Status;
     }
+
+    /// output
+    UA_Boolean out = true;
+    UA_Variant_setScalarCopy(output, &out, &UA_TYPES[UA_TYPES_BOOLEAN]);
 
     return UA_STATUSCODE_GOOD;
 }
