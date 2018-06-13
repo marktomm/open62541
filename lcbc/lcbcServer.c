@@ -53,7 +53,7 @@ int main(void)
     assertStatus(Add_RulesObject_TypeDef(server, LCBC1_NAMESPACE)); 
     assertStatus(Add_RuleDiagnostisEntry_TypeDef(server, LCBC1_NAMESPACE));
 
-    const UA_NodeId Lcbc1FolderNodeId = UA_NODEID_NUMERIC(LCBC1_NAMESPACE, LcbcFolderNumericId);
+    const UA_NodeId Lcbc1FolderNodeId = UA_NODEID_NUMERIC(LCBC1_NAMESPACE, Lcbc_Folder_NumericId);
     assertStatus(Add_RulesObject_ToFolder(server, &Lcbc1FolderNodeId));
 #endif
      

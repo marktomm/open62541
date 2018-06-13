@@ -4,82 +4,132 @@
 UA_StatusCode Add_RulesObject_TypeDef(UA_Server *server, UA_UInt32 nameSpace)
 {
     UA_StatusCode addStatus = UA_STATUSCODE_GOOD;
+    UA_NodeId ObjectType_NodeId = UA_NODEID_NUMERIC(nameSpace, MartemRules_Type_NumericId);
 
-    const UA_UInt32 ObjectType_NumericId = 30000;
-    UA_NodeId ObjectType_NodeId = UA_NODEID_NUMERIC(nameSpace, ObjectType_NumericId);
-
+    
     /// Add MartesRules ObjetType Node to BaseObjectType with hasSubType Reference
-    UA_ObjectTypeAttributes MartemRulesObjectTypeAttr = UA_ObjectTypeAttributes_default;
-    MartemRulesObjectTypeAttr.displayName = UA_LOCALIZEDTEXT("en-US", "MartemRulesType");
+    UA_ObjectTypeAttributes typeAttr = UA_ObjectTypeAttributes_default;
+    typeAttr.displayName = UA_LOCALIZEDTEXT("en-US", "MartemRulesType");
     addStatus |= UA_Server_addObjectTypeNode(server, ObjectType_NodeId,
                                 UA_NODEID_NUMERIC(0, UA_NS0ID_BASEOBJECTTYPE),
                                 UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
                                 UA_QUALIFIEDNAME(nameSpace, "MartemRulesType"), 
-                                MartemRulesObjectTypeAttr,
+                                typeAttr,
                                 NULL, NULL);
 
-    /// Add example Rule Method to MartemRulesType
-    const UA_UInt32 CtrlDimmingDo_Method_NumericId = 30001;
-    UA_NodeId CtrlDimmingDo_Method_NodeId = UA_NODEID_NUMERIC(nameSpace, CtrlDimmingDo_Method_NumericId);
+    {
+        /// Add example Rule Method to MartemRulesType
+        const UA_UInt32 methodId = 30001;
+        UA_NodeId methodNodeId = UA_NODEID_NUMERIC(nameSpace, methodId);
 
-    UA_MethodAttributes attr = UA_MethodAttributes_default;
-    attr.executable = true;
-    attr.userExecutable = true;
-    attr.displayName = UA_LOCALIZEDTEXT("", "CtrlDimmingDO");
-    attr.description = UA_LOCALIZEDTEXT("", "");
-    attr.writeMask = 0;
-    attr.userWriteMask = 0;
-    /// addNode_begin
-    addStatus |= UA_Server_addNode_begin(server, UA_NODECLASS_METHOD,
-        CtrlDimmingDo_Method_NodeId,
-        ObjectType_NodeId,
-        UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
-        UA_QUALIFIEDNAME(nameSpace, "CtrlDimmingDO"),
-        UA_NODEID_NULL,
-        (const UA_NodeAttributes*)&attr, &UA_TYPES[UA_TYPES_METHODATTRIBUTES], NULL, NULL);
+        UA_MethodAttributes attr = UA_MethodAttributes_default;
+        attr.executable = true;
+        attr.userExecutable = true;
+        attr.displayName = UA_LOCALIZEDTEXT("", "CtrlDimmingDO");
+        attr.description = UA_LOCALIZEDTEXT("", "");
+        attr.writeMask = 0;
+        attr.userWriteMask = 0;
+        /// addNode_begin
+        addStatus |= UA_Server_addNode_begin(server, UA_NODECLASS_METHOD,
+            methodNodeId,
+            ObjectType_NodeId,
+            UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
+            UA_QUALIFIEDNAME(nameSpace, "CtrlDimmingDO"),
+            UA_NODEID_NULL,
+            (const UA_NodeAttributes*)&attr, &UA_TYPES[UA_TYPES_METHODATTRIBUTES], NULL, NULL);
 
-    /// Make the Rule Method mandatory
-    /*
-    UA_StatusCode
-    UA_Server_addReference(UA_Server *server, const UA_NodeId sourceId,
-                        const UA_NodeId refTypeId,
-                        const UA_ExpandedNodeId targetId, UA_Boolean isForward);
-    */
-    addStatus |= UA_Server_addReference(server, CtrlDimmingDo_Method_NodeId, 
-                            UA_NODEID_NUMERIC(0, UA_NS0ID_HASMODELLINGRULE), 
-                            UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true);
+        /// Make the Rule Method mandatory
+        /*
+        UA_StatusCode
+        UA_Server_addReference(UA_Server *server, const UA_NodeId sourceId,
+                            const UA_NodeId refTypeId,
+                            const UA_ExpandedNodeId targetId, UA_Boolean isForward);
+        */
+        addStatus |= UA_Server_addReference(server, methodNodeId, 
+                                UA_NODEID_NUMERIC(0, UA_NS0ID_HASMODELLINGRULE), 
+                                UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true);
 
-    /// input args
-    UA_Argument inputArgument;
-    UA_Argument_init(&inputArgument);
-    inputArgument.description = UA_LOCALIZEDTEXT("en-US", "Array of Double");
-    inputArgument.name = UA_STRING("CmdControlDoubleArray");
-    inputArgument.dataType = UA_TYPES[UA_TYPES_DOUBLE].typeId;
-    inputArgument.valueRank = 1; /* array */
-    // UA_UInt32 arrayDims[1] = {2};
-    // inputArgument.arrayDimensions = arrayDims;
-    // inputArgument.arrayDimensionsSize = 1;
-    
+        /// input args
+        UA_Argument inputArgument;
+        UA_Argument_init(&inputArgument);
+        inputArgument.description = UA_LOCALIZEDTEXT("en-US", "Array of Double");
+        inputArgument.name = UA_STRING("CmdControlDoubleArray");
+        inputArgument.dataType = UA_TYPES[UA_TYPES_DOUBLE].typeId;
+        inputArgument.valueRank = 1; /* array */
+        // UA_UInt32 arrayDims[1] = {2};
+        // inputArgument.arrayDimensions = arrayDims;
+        // inputArgument.arrayDimensionsSize = 1;
+        
 
-    /// output args
-    // UA_Argument outputArgument;
-    // UA_Argument_init(&outputArgument);
-    // outputArgument.description = UA_LOCALIZEDTEXT("en-US", "A Byte");
-    // outputArgument.name = UA_STRING("CmdResultByte");
-    // outputArgument.dataType = UA_TYPES[UA_TYPES_BYTE].typeId;
-    // outputArgument.valueRank = -1; /* scalar */
+        /// output args
+        // UA_Argument outputArgument;
+        // UA_Argument_init(&outputArgument);
+        // outputArgument.description = UA_LOCALIZEDTEXT("en-US", "A Byte");
+        // outputArgument.name = UA_STRING("CmdResultByte");
+        // outputArgument.dataType = UA_TYPES[UA_TYPES_BYTE].typeId;
+        // outputArgument.valueRank = -1; /* scalar */
 
-    /// pass required argument count as context
-    lcbc_ctrl_ctx *context = (lcbc_ctrl_ctx*) malloc(sizeof(lcbc_ctrl_ctx));
-    context->ArgumentCount = 6;
-    context->DiagnosticsNodeId = UA_NODEID_NULL; /// a real NodeId must be set in the context, after Diagnostics Instance has been added | E_ADD_DIAGNOSTICS
-    UA_Server_setNodeContext(server, 
-        CtrlDimmingDo_Method_NodeId,
-        context);
+        /// pass required argument count as context
+        lcbc_ctrl_ctx *context = (lcbc_ctrl_ctx*) malloc(sizeof(lcbc_ctrl_ctx));
+        context->ArgumentCount = 6;
+        context->DiagnosticsNodeId = UA_NODEID_NULL; /// a real NodeId must be set in the context, after Diagnostics Instance has been added | E_ADD_DIAGNOSTICS
+        UA_Server_setNodeContext(server, 
+            methodNodeId,
+            context);
 
-    addStatus |= UA_Server_addMethodNode_finish(server, 
-        CtrlDimmingDo_Method_NodeId,
-        RuleMethodCallbackDigital, 1, &inputArgument, 0, NULL);
+        addStatus |= UA_Server_addMethodNode_finish(server, 
+            methodNodeId,
+            RuleMethodCallbackDigital, 1, &inputArgument, 0, NULL);
+        /// add method finish
+    }
+
+    {
+        /// Add Rule Remove Method to MartemRulesType
+        const UA_UInt32 methodId = 30003;
+        UA_NodeId methodNodeId = UA_NODEID_NUMERIC(nameSpace, methodId);
+
+        UA_MethodAttributes attr = UA_MethodAttributes_default;
+        attr.executable = true;
+        attr.userExecutable = true;
+        attr.displayName = UA_LOCALIZEDTEXT("", "RuleRemove");
+        attr.description = UA_LOCALIZEDTEXT("", "");
+        attr.writeMask = 0;
+        attr.userWriteMask = 0;
+        /// addNode_begin
+        addStatus |= UA_Server_addNode_begin(server, UA_NODECLASS_METHOD,
+            methodNodeId,
+            ObjectType_NodeId,
+            UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),
+            UA_QUALIFIEDNAME(nameSpace, "RuleRemove"),
+            UA_NODEID_NULL,
+            (const UA_NodeAttributes*)&attr, &UA_TYPES[UA_TYPES_METHODATTRIBUTES], NULL, NULL);
+
+        /// Make the Rule Method mandatory
+        addStatus |= UA_Server_addReference(server, methodNodeId, 
+                                UA_NODEID_NUMERIC(0, UA_NS0ID_HASMODELLINGRULE), 
+                                UA_EXPANDEDNODEID_NUMERIC(0, UA_NS0ID_MODELLINGRULE_MANDATORY), true);
+
+        /// input args
+        UA_Argument inputArgument;
+        UA_Argument_init(&inputArgument);
+        inputArgument.description = UA_LOCALIZEDTEXT("en-US", "Array of Double");
+        inputArgument.name = UA_STRING("CmdControlDoubleArray");
+        inputArgument.dataType = UA_TYPES[UA_TYPES_DOUBLE].typeId;
+        inputArgument.valueRank = 1; /* array */
+
+        /// pass required argument count as context
+        lcbc_ctrl_ctx *context = (lcbc_ctrl_ctx*) malloc(sizeof(lcbc_ctrl_ctx));
+        context->ArgumentCount = 1; /// RuleId
+        context->DiagnosticsNodeId = UA_NODEID_NULL; /// a real NodeId must be set in the context, after Diagnostics Instance has been added | E_ADD2_DIAGNOSTICS
+        UA_Server_setNodeContext(server, 
+            methodNodeId,
+            context);
+
+        addStatus |= UA_Server_addMethodNode_finish(server, 
+            methodNodeId,
+            RuleRemoveMethodCallbackDigital, 1, &inputArgument, 0, NULL);
+        /// add method finish
+    }
 
     /// Add RuleDiagnostics Variable to MartemRulesType to record enabled Rules
     const UA_UInt32 RuleDiagnostics_Variable_NumericId = 30002;
@@ -188,22 +238,44 @@ UA_StatusCode Add_RulesObject_ToFolder(UA_Server *server, const UA_NodeId *folde
     LOG_INFO("source ns: %d id: %d, target ns: %d %d", instanceId.namespaceIndex, instanceId.identifier.numeric, addToNameSpace, folderId->namespaceIndex);
 
     /// find RuleDiagnostics Variable NodeId in newly added Rules Object in LCBC
-    UA_NodeId browseResult_RuleDiagNostics_Instance;
-    ret |= TranslateBrowsePathToNodeIds(server, &browseResult_RuleDiagNostics_Instance, UA_NS0ID_HASCOMPONENT, typeDefNameSpace, "RuleDiagnostics", instanceId);
+    UA_NodeId browseResult_RuleDiagnostics_Instance;
+    ret |= TranslateBrowsePathToNodeIds(server, &browseResult_RuleDiagnostics_Instance, UA_NS0ID_HASCOMPONENT, typeDefNameSpace, "RuleDiagnostics", instanceId);
 
-    /// find CtrlDimmingDO Method NodeId in newly added Rules Object in LCBC
-    UA_NodeId browseResult_Rule_Method;
-    ret |= TranslateBrowsePathToNodeIds(server, &browseResult_Rule_Method, UA_NS0ID_HASCOMPONENT, typeDefNameSpace, "CtrlDimmingDO", instanceId);
-    
-    /// set RuleDiagNostics_Instance as Context to Rule_Method; E_ADD_DIAGNOSTICS
-    lcbc_ctrl_ctx* context;
-    ret |= UA_Server_getNodeContext(server, browseResult_Rule_Method, (void**) &context);
-    if(UA_STATUSCODE_GOOD != ret) {
-        return ret;
-    } 
+    {
+        /// E_ADD_DIAGNOSTICS 
+        /// find CtrlDimmingDO Method NodeId in newly added Rules Object in LCBC
+        UA_NodeId browseResult_Rule_Method;
+        ret |= TranslateBrowsePathToNodeIds(server, &browseResult_Rule_Method, UA_NS0ID_HASCOMPONENT, typeDefNameSpace, "CtrlDimmingDO", instanceId);
+        
+        /// set RuleDiagNostics_Instance as Context to Rule_Method; E_ADD_DIAGNOSTICS
+        lcbc_ctrl_ctx* context;
+        ret |= UA_Server_getNodeContext(server, browseResult_Rule_Method, (void**) &context);
+        if(UA_STATUSCODE_GOOD != ret) {
+            return ret;
+        } 
 
-    ret |= UA_NodeId_copy(&browseResult_RuleDiagNostics_Instance, &(context->DiagnosticsNodeId) );
-    context->NameSpaceIndex = folderId->namespaceIndex;
+        ret |= UA_NodeId_copy(&browseResult_RuleDiagnostics_Instance, &(context->DiagnosticsNodeId) );
+        context->NameSpaceIndex = folderId->namespaceIndex;
+        /// E_ADD_DIAGNOSTICS x
+    }
+
+    {
+        /// E_ADD2_DIAGNOSTICS
+        /// find RuleRemove Method NodeId in newly added Rules Object in LCBC
+        UA_NodeId browseResult_Rule_Method;
+        ret |= TranslateBrowsePathToNodeIds(server, &browseResult_Rule_Method, UA_NS0ID_HASCOMPONENT, typeDefNameSpace, "RuleRemove", instanceId);
+        
+        /// set RuleDiagNostics_Instance as Context to Rule_Method; E_ADD_DIAGNOSTICS
+        lcbc_ctrl_ctx* context;
+        assertStatus(UA_Server_getNodeContext(server, browseResult_Rule_Method, (void**) &context));
+        if(UA_STATUSCODE_GOOD != ret) {
+            return ret;
+        } 
+
+        ret |= UA_NodeId_copy(&browseResult_RuleDiagnostics_Instance, &(context->DiagnosticsNodeId) );
+        context->NameSpaceIndex = folderId->namespaceIndex;
+        /// E_ADD2_DIAGNOSTICS x
+    }
 
     return ret;
 }

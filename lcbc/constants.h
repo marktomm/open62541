@@ -3,15 +3,18 @@
 
 #include  "open62541/open62541.h"
 
-#define NODECTX 1
-#define PTRCTX 1
+// #define NODECTX 1
+// #define PTRCTX 1
 
 #define STATIC_ENTRIES 100
 #define STATIC_CTX 25000
 
 /// Node IDs
+#ifdef NODECTX
 #define LCBC1_NAMESPACE 1
-// #define LCBC2_NAMESPACE 3
+#else
+#define LCBC1_NAMESPACE 2
+#endif
 
 #define ManualOverrideState_ID 3
 #define ManualOverrideControl_ID 4
@@ -31,9 +34,12 @@
 #define F3_DimmState_ID 303
 #define F3_DimmControl_ID 304
 
-#define LcbcFolderNumericId 50000
+#define Lcbc_Folder_NumericId 50000
+
 #define RuleDiagnosticsEntry_Type_NumericId 100000
 #define RULEDIAGNOSTICSENTRY_TYPE_NODEID(ns) UA_NODEID_NUMERIC(ns, RuleDiagnosticsEntry_Type_NumericId)
+
+#define MartemRules_Type_NumericId 30000
 
 #define SERVER_NODEID UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER)
 

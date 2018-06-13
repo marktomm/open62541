@@ -170,3 +170,56 @@ UA_StatusCode RuleMethodCallbackDigital(UA_Server *server,
 
     return UA_STATUSCODE_GOOD;
 }
+
+// Rules
+UA_StatusCode RuleRemoveMethodCallbackDigital(UA_Server *server,
+                         const UA_NodeId *sessionId, void *sessionHandle,
+                         const UA_NodeId *methodId, void *methodContext,
+                         const UA_NodeId *objectId, void *objectContext,
+                         size_t inputSize, const UA_Variant *input,
+                         size_t outputSize, UA_Variant *output) 
+{
+    /// get ctx to local
+    lcbc_ctrl_ctx* context = (lcbc_ctrl_ctx*) methodContext;
+    int argCnt = context->ArgumentCount;
+    UA_NodeId diagnosticsNodeId = context->DiagnosticsNodeId;
+
+    /// invariants
+    if(input->arrayLength != argCnt) {
+        LOG_INFO("RuleRemoveMethodCallbackDigital | Expected %d nr of args, got %lu", argCnt, input->arrayLength);
+        return input->arrayLength < argCnt ? UA_STATUSCODE_BADTOOMANYARGUMENTS : UA_STATUSCODE_BADARGUMENTSMISSING ; 
+    }
+
+    if( UA_NodeId_isNull(&diagnosticsNodeId) ) {
+        LOG_INFO("RuleRemoveMethodCallbackDigital | context not set");
+        return UA_STATUSCODE_BADWAITINGFORINITIALDATA;
+    }
+    /// invariants
+
+    /// get input
+    UA_Double* inputArgs = input->data;
+    UA_Int32 ruleId = (UA_Int32)inputArgs[0];
+
+    /// Remove entry in RuleDiagnostics
+    UA_StatusCode remNode_Status = UA_STATUSCODE_GOOD;
+
+    /// Find Rule to remove
+    char ruleEntryString[100];
+    snprintf(ruleEntryString, 100, "Rule_%d", ruleId);
+
+    UA_NodeId ruleEntry_NodeId;
+    remNode_Status |= TranslateBrowsePathToNodeIds(server, &ruleEntry_NodeId, UA_NS0ID_HASCOMPONENT, LCBC1_NAMESPACE, ruleEntryString, diagnosticsNodeId);
+    if(remNode_Status != UA_STATUSCODE_GOOD) {
+        LOG_INFO("RuleRemoveMethodCallbackDigital | unable to find: %s, status: %s", ruleEntryString, UA_StatusCode_name(remNode_Status));
+        return remNode_Status;
+    }
+
+    remNode_Status |= UA_Server_deleteNode(server, ruleEntry_NodeId, true);
+
+    if(remNode_Status != UA_STATUSCODE_GOOD) {
+        LOG_INFO("RuleRemoveMethodCallbackDigital | UA_Server_deleteNode failed: %s", UA_StatusCode_name(remNode_Status));
+        return remNode_Status;
+    }
+
+    return UA_STATUSCODE_GOOD;
+}
