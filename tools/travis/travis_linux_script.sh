@@ -1,6 +1,27 @@
 #!/bin/bash
 set -e
 
+
+# Sonar code quality
+if ! [ -z ${SONAR+x} ]; then
+    if ([ "${TRAVIS_REPO_SLUG}" != "open62541/open62541" ] ||
+        [ "${TRAVIS_PULL_REQUEST}" != "false" ] ||
+        [ "${TRAVIS_BRANCH}" != "master" ]); then
+        echo "Skipping Sonarcloud on forks"
+        # Skip on forks
+        exit 0;
+    fi
+    git fetch --unshallow
+	mkdir -p build && cd build
+	build-wrapper-linux-x86-64 --out-dir ../bw-output cmake -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/$PYTHON \
+    -DCMAKE_BUILD_TYPE=Debug -DUA_BUILD_EXAMPLES=ON -DUA_ENABLE_DISCOVERY=ON -DUA_ENABLE_DISCOVERY_MULTICAST=ON \
+    -DUA_ENABLE_ENCRYPTION .. \
+    && make -j
+	cd ..
+	sonar-scanner
+	exit 0
+fi
+
 # Docker build test
 if ! [ -z ${DOCKER+x} ]; then
     docker build -t open62541 .
@@ -89,7 +110,8 @@ else
     echo -e "\r\n== Full Namespace 0 Generation ==" && echo -en 'travis_fold:start:script.build.ns0\\r'
     mkdir -p build
     cd build
-    cmake -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/$PYTHON -DCMAKE_BUILD_TYPE=Debug -DUA_ENABLE_FULL_NS0=ON -DUA_BUILD_EXAMPLES=ON  ..
+    cmake -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/$PYTHON -DCMAKE_BUILD_TYPE=Debug -DUA_ENABLE_FULL_NS0=ON -DUA_BUILD_EXAMPLES=ON  \
+    -DUA_ENABLE_SUBSCRIPTIONS_EVENTS=ON ..
     make -j
     if [ $? -ne 0 ] ; then exit 1 ; fi
     cd .. && rm build -rf
@@ -216,9 +238,9 @@ else
     mkdir -p build && cd build
     # Valgrind cannot handle the full NS0 because the generated file is too big. Thus run NS0 full without valgrind
     cmake -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/$PYTHON -DUA_ENABLE_FULL_NS0=ON \
-    -DCMAKE_BUILD_TYPE=Debug -DUA_BUILD_EXAMPLES=ON -DUA_ENABLE_ENCRYPTION=ON -DUA_ENABLE_DISCOVERY=ON \
+    -DCMAKE_BUILD_TYPE=Debug -DUA_BUILD_EXAMPLES=ON -DUA_ENABLE_PUBSUB=ON -DUA_ENABLE_ENCRYPTION=ON -DUA_ENABLE_DISCOVERY=ON \
     -DUA_ENABLE_DISCOVERY_MULTICAST=ON -DUA_BUILD_UNIT_TESTS=ON -DUA_ENABLE_COVERAGE=OFF \
-    -DUA_ENABLE_UNIT_TESTS_MEMCHECK=OFF ..
+    -DUA_ENABLE_UNIT_TESTS_MEMCHECK=OFF -DUA_ENABLE_SUBSCRIPTIONS_EVENTS=ON ..
     make -j && make test ARGS="-V"
     if [ $? -ne 0 ] ; then exit 1 ; fi
     cd .. && rm build -rf
@@ -228,7 +250,7 @@ else
         echo -e "\r\n== Unit tests (minimal NS0) ==" && echo -en 'travis_fold:start:script.build.unit_test_ns0_minimal\\r'
         mkdir -p build && cd build
         cmake -DPYTHON_EXECUTABLE:FILEPATH=/usr/bin/$PYTHON \
-        -DCMAKE_BUILD_TYPE=Debug -DUA_BUILD_EXAMPLES=ON  -DUA_ENABLE_ENCRYPTION=ON -DUA_ENABLE_DISCOVERY=ON \
+        -DCMAKE_BUILD_TYPE=Debug -DUA_BUILD_EXAMPLES=ON -DUA_ENABLE_PUBSUB=ON -DUA_ENABLE_ENCRYPTION=ON -DUA_ENABLE_DISCOVERY=ON \
         -DUA_ENABLE_DISCOVERY_MULTICAST=ON -DUA_BUILD_UNIT_TESTS=ON -DUA_ENABLE_COVERAGE=ON \
         -DUA_ENABLE_UNIT_TESTS_MEMCHECK=ON ..
         make -j && make test ARGS="-V"

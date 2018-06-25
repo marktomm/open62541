@@ -11,9 +11,12 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/deps)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 include_directories(${PROJECT_SOURCE_DIR}/src/server)
+include_directories(${PROJECT_SOURCE_DIR}/src/pubsub)
 include_directories(${PROJECT_SOURCE_DIR}/plugins)
 include_directories(${PROJECT_BINARY_DIR}/src_generated)
 include_directories(${PROJECT_SOURCE_DIR}/tests/testing-plugins)
+
+add_definitions(-DUA_sleep_ms=UA_comboSleep)
 
 #############################
 # Compiled binaries folders #
@@ -138,6 +141,14 @@ add_executable(check_services_subscriptions server/check_services_subscriptions.
 target_link_libraries(check_services_subscriptions ${LIBS})
 add_test_valgrind(services_subscriptions ${TESTS_BINARY_DIR}/check_services_subscriptions)
 
+add_executable(check_monitoreditem_filter server/check_monitoreditem_filter.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-testplugins>)
+target_link_libraries(check_monitoreditem_filter ${LIBS})
+add_test_valgrind(monitoreditem_filter ${TESTS_BINARY_DIR}/check_monitoreditem_filter)
+
+add_executable(check_subscription_events server/check_subscription_events.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-testplugins>)
+target_link_libraries(check_subscription_events ${LIBS})
+add_test_valgrind(subscription_events ${TESTS_BINARY_DIR}/check_subscription_events)
+
 add_executable(check_nodestore server/check_nodestore.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-testplugins>)
 target_link_libraries(check_nodestore ${LIBS})
 add_test_valgrind(nodestore ${TESTS_BINARY_DIR}/check_nodestore)
@@ -164,6 +175,26 @@ if(UA_ENABLE_DISCOVERY)
     add_test_valgrind(discovery ${TESTS_BINARY_DIR}/check_discovery)
 endif()
 
+if(UA_ENABLE_PUBSUB)
+    add_executable(check_pubsub_encoding pubsub/check_pubsub_encoding.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-testplugins>)
+    target_link_libraries(check_pubsub_encoding ${LIBS})
+    add_test_valgrind(pubsub_encoding ${TESTS_BINARY_DIR}/check_pubsub_encoding)
+    add_executable(check_pubsub_connection_udp pubsub/check_pubsub_connection_udp.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-plugins>)
+    target_link_libraries(check_pubsub_connection_udp ${LIBS})
+    add_test(NAME check_pubsub_connection_udp COMMAND check_pubsub_connection_udp)
+    add_executable(check_pubsub_pds pubsub/check_pubsub_pds.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-plugins>)
+    target_link_libraries(check_pubsub_pds ${LIBS})
+    add_test(check_pubsub_pds ${TESTS_BINARY_DIR}/check_pubsub_pds)
+    add_executable(check_pubsub_publish pubsub/check_pubsub_publish.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-plugins>)
+    target_link_libraries(check_pubsub_publish ${LIBS})
+    add_test(check_pubsub_publish ${TESTS_BINARY_DIR}/check_pubsub_publish)
+    if(UA_ENABLE_PUBSUB_INFORMATIONMODEL)
+        add_executable(check_pubsub_informationmodel pubsub/check_pubsub_informationmodel.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-plugins>)
+        target_link_libraries(check_pubsub_informationmodel ${LIBS})
+        add_test(check_pubsub_informationmodel ${TESTS_BINARY_DIR}/check_pubsub_informationmodel)
+    endif()
+endif()
+
 add_executable(check_server_readspeed server/check_server_readspeed.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-testplugins>)
 target_link_libraries(check_server_readspeed ${LIBS})
 add_test_valgrind(server_readspeed ${TESTS_BINARY_DIR}/check_server_readspeed)
@@ -182,167 +213,29 @@ add_executable(check_client_async client/check_client_async.c $<TARGET_OBJECTS:o
 target_link_libraries(check_client_async ${LIBS})
 add_test_valgrind(client_async ${TESTS_BINARY_DIR}/check_client_async)
 
+add_executable(check_client_async_connect client/check_client_async_connect.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-testplugins>)
+target_link_libraries(check_client_async_connect ${LIBS})
+add_test_valgrind(client_async_connect ${TESTS_BINARY_DIR}/check_client_async_connect)
+
 add_executable(check_client_subscriptions client/check_client_subscriptions.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-testplugins>)
 target_link_libraries(check_client_subscriptions ${LIBS})
 add_test_valgrind(client_subscriptions ${TESTS_BINARY_DIR}/check_client_subscriptions)
-
-add_executable(check_client_subscriptions_deprecated client/check_client_subscriptions_deprecated.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-testplugins>)
-target_link_libraries(check_client_subscriptions_deprecated ${LIBS})
-add_test_valgrind(client_subscriptions_deprecated ${TESTS_BINARY_DIR}/check_client_subscriptions_deprecated)
 
 add_executable(check_client_highlevel client/check_client_highlevel.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-testplugins>)
 target_link_libraries(check_client_highlevel ${LIBS})
 add_test_valgrind(client_highlevel ${TESTS_BINARY_DIR}/check_client_highlevel)
 
-#############################
-#                           #
-# Test for Nodeset Compiler #
-#                           #
-#############################
+# Test Encryption
 
-# can only be tested if UA_ENABLE_FULL_NS0
+if(UA_ENABLE_ENCRYPTION)
+    add_executable(check_encryption_basic128rsa15 encryption/check_encryption_basic128rsa15.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-testplugins>)
+    target_link_libraries(check_encryption_basic128rsa15 ${LIBS})
+    add_test_valgrind(encryption_basic128rsa15 ${TESTS_BINARY_DIR}/check_encryption_basic128rsa15)
 
-if (UA_ENABLE_FULL_NS0)
-
-    file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/src_generated/tests")
-
-    # Generate types for DI namespace
-    set(UA_TYPES_OUT "ua_types_di")
-    add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src_generated/tests/${UA_TYPES_OUT}_generated.c
-                       ${PROJECT_BINARY_DIR}/src_generated/tests/${UA_TYPES_OUT}_generated.h
-                       ${PROJECT_BINARY_DIR}/src_generated/tests/${UA_TYPES_OUT}_generated_handling.h
-                       ${PROJECT_BINARY_DIR}/src_generated/tests/${UA_TYPES_OUT}_generated_encoding_binary.h
-                       PRE_BUILD
-                       COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tools/generate_datatypes.py
-                       --namespace=2
-                       --type-csv=${PROJECT_SOURCE_DIR}/deps/ua-nodeset/DI/OpcUaDiModel.csv
-                       --type-bsd=${PROJECT_SOURCE_DIR}/deps/ua-nodeset/DI/Opc.Ua.Di.Types.bsd
-                       --no-builtin
-                       ${PROJECT_BINARY_DIR}/src_generated/tests/${UA_TYPES_OUT}
-                       DEPENDS ${PROJECT_SOURCE_DIR}/tools/generate_datatypes.py
-                       ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/DI/OpcUaDiModel.csv
-                       ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/DI/Opc.Ua.Di.Types.bsd)
-    add_custom_target(open62541-generator-tests-types-di DEPENDS ${PROJECT_BINARY_DIR}/src_generated/tests/${UA_TYPES_OUT}_generated.c)
-
-    # Generate types for ADI namespace
-    set(UA_TYPES_OUT "ua_types_adi")
-    add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src_generated/tests/${UA_TYPES_OUT}_generated.c
-                       ${PROJECT_BINARY_DIR}/src_generated/tests/${UA_TYPES_OUT}_generated.h
-                       ${PROJECT_BINARY_DIR}/src_generated/tests/${UA_TYPES_OUT}_generated_handling.h
-                       ${PROJECT_BINARY_DIR}/src_generated/tests/${UA_TYPES_OUT}_generated_encoding_binary.h
-                       PRE_BUILD
-                       COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tools/generate_datatypes.py
-                       --namespace=3
-                       --type-csv=${PROJECT_SOURCE_DIR}/deps/ua-nodeset/ADI/OpcUaAdiModel.csv
-                       --type-bsd=${PROJECT_SOURCE_DIR}/deps/ua-nodeset/ADI/Opc.Ua.Adi.Types.bsd
-                       --no-builtin
-                       ${PROJECT_BINARY_DIR}/src_generated/tests/${UA_TYPES_OUT}
-                       DEPENDS ${PROJECT_SOURCE_DIR}/tools/generate_datatypes.py
-                       ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/ADI/OpcUaAdiModel.csv
-                       ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/ADI/Opc.Ua.Adi.Types.bsd)
-    add_custom_target(open62541-generator-tests-types-adi DEPENDS ${PROJECT_BINARY_DIR}/src_generated/tests/${UA_TYPES_OUT}_generated.c)
-
-    # generate DI namespace
-    add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_di.c
-                       ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_di.h
-                       PRE_BUILD
-                       COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/nodeset_compiler.py
-                       --internal-headers
-                       --types-array=UA_TYPES
-                       --types-array=UA_TYPES_DI
-                       --existing ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/Schema/Opc.Ua.NodeSet2.xml
-                       --xml ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/DI/Opc.Ua.Di.NodeSet2.xml
-                       ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_di
-                       DEPENDS ${UA_NAMESPACE0_XML}
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/nodeset_compiler.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/nodes.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/nodeset.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/datatypes.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/backend_open62541.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/backend_open62541_nodes.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/backend_open62541_datatypes.py
-                       ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/Schema/Opc.Ua.NodeSet2.xml
-                       ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/DI/Opc.Ua.Di.NodeSet2.xml
-                       )
-    add_custom_target(open62541-generator-tests-ns-di DEPENDS ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_di.c)
-    add_dependencies(open62541-generator-tests-ns-di open62541-generator-tests-types-di)
-
-
-    # generate ADI namespace which is using DI
-    add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_adi.c
-                       ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_adi.h
-                       PRE_BUILD
-                       COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/nodeset_compiler.py
-                       --internal-headers
-                       --types-array=UA_TYPES
-                       --types-array=UA_TYPES_DI
-                       --types-array=UA_TYPES_ADI
-                       --existing ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/Schema/Opc.Ua.NodeSet2.xml
-                       --existing ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/DI/Opc.Ua.Di.NodeSet2.xml
-                       --xml ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/ADI/Opc.Ua.Adi.NodeSet2.xml
-                       ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_adi
-                       DEPENDS ${UA_NAMESPACE0_XML}
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/nodeset_compiler.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/nodes.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/nodeset.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/datatypes.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/backend_open62541.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/backend_open62541_nodes.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/backend_open62541_datatypes.py
-                       ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/Schema/Opc.Ua.NodeSet2.xml
-                       ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/DI/Opc.Ua.Di.NodeSet2.xml
-                       ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/ADI/Opc.Ua.Adi.NodeSet2.xml
-                       )
-    add_custom_target(open62541-generator-tests-ns-adi DEPENDS ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_adi.c)
-    add_dependencies(open62541-generator-tests-ns-adi open62541-generator-tests-types-adi open62541-generator-tests-ns-di)
-
-    # generate PLCopen namespace which is using DI
-    add_custom_command(OUTPUT ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_plc.c
-                       ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_plc.h
-                       PRE_BUILD
-                       COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/nodeset_compiler.py
-                       --internal-headers
-                       --types-array=UA_TYPES
-                       --types-array=UA_TYPES_DI
-                       # PLCopen has no specific type definition, thus use the default UA_TYPES to ignore it
-                       --types-array=UA_TYPES
-                       --existing ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/Schema/Opc.Ua.NodeSet2.xml
-                       --existing ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/DI/Opc.Ua.Di.NodeSet2.xml
-                       --xml ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/PLCopen/Opc.Ua.Plc.NodeSet2.xml
-                       ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_plc
-                       DEPENDS ${UA_NAMESPACE0_XML}
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/nodeset_compiler.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/nodes.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/nodeset.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/datatypes.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/backend_open62541.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/backend_open62541_nodes.py
-                       ${PROJECT_SOURCE_DIR}/tools/nodeset_compiler/backend_open62541_datatypes.py
-                       ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/DI/Opc.Ua.Di.NodeSet2.xml
-                       ${PROJECT_SOURCE_DIR}/deps/ua-nodeset/PLCopen/Opc.Ua.Plc.NodeSet2.xml
-                       )
-    add_custom_target(open62541-generator-tests-ns-plc DEPENDS ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_plc.c)
-    add_dependencies(open62541-generator-tests-ns-plc open62541-generator-tests-ns-di)
-
-
-    add_executable(check_nodeset_compiler_adi
-                   server/check_nodeset_compiler_adi.c
-                   ${PROJECT_BINARY_DIR}/src_generated/tests/ua_types_di_generated.c
-                   ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_di.c
-                   ${PROJECT_BINARY_DIR}/src_generated/tests/ua_types_adi_generated.c
-                   ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_adi.c
-                   $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-testplugins>)
-    add_dependencies(check_nodeset_compiler_adi open62541-generator-tests-ns-adi)
-    target_link_libraries(check_nodeset_compiler_adi ${LIBS})
-    add_test_valgrind(nodeset_compiler_adi ${TESTS_BINARY_DIR}/check_nodeset_compiler_adi)
-
-    add_executable(check_nodeset_compiler_plc
-                   server/check_nodeset_compiler_plc.c
-                   ${PROJECT_BINARY_DIR}/src_generated/tests/ua_types_di_generated.c
-                   ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_di.c
-                   ${PROJECT_BINARY_DIR}/src_generated/tests/ua_namespace_plc.c
-                   $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-testplugins>)
-    add_dependencies(check_nodeset_compiler_plc open62541-generator-tests-ns-plc)
-    target_link_libraries(check_nodeset_compiler_plc ${LIBS})
-    add_test_valgrind(nodeset_compiler_plc ${TESTS_BINARY_DIR}/check_nodeset_compiler_plc)
+    add_executable(check_encryption_basic256sha256 encryption/check_encryption_basic256sha256.c $<TARGET_OBJECTS:open62541-object> $<TARGET_OBJECTS:open62541-testplugins>)
+    target_link_libraries(check_encryption_basic256sha256 ${LIBS})
+    add_test_valgrind(encryption_basic256sha256 ${TESTS_BINARY_DIR}/check_encryption_basic256sha256)
 endif()
+
+# Tests for Nodeset Compiler
+add_subdirectory(nodeset-compiler)

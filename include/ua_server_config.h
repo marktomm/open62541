@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. 
  *
- *    Copyright 2017 (c) Julius Pfrommer, Fraunhofer IOSB
+ *    Copyright 2017 (c) Fraunhofer IOSB (Author: Julius Pfrommer)
  *    Copyright 2017 (c) Stefan Profanter, fortiss GmbH
  *    Copyright 2017 (c) Henrik Norrman
+ *    Copyright 2018 (c) Fabian Arndt, Root-Core
  */
 
 #ifndef UA_SERVER_CONFIG_H_
@@ -21,6 +22,10 @@ extern "C" {
 #include "ua_plugin_pki.h"
 #include "ua_plugin_securitypolicy.h"
 #include "ua_plugin_nodestore.h"
+
+#ifdef UA_ENABLE_PUBSUB
+#include "ua_plugin_pubsub.h"
+#endif
 
 /**
  * .. _server-configuration:
@@ -86,6 +91,12 @@ struct UA_ServerConfig {
     UA_ServerNetworkLayer *networkLayers;
     UA_String customHostname;
 
+#ifdef UA_ENABLE_PUBSUB
+    /*PubSub network layer */
+    size_t pubsubTransportLayersSize;
+    UA_PubSubTransportLayer *pubsubTransportLayers;
+#endif
+
     /* Available endpoints */
     size_t endpointsSize;
     UA_Endpoint *endpoints;
@@ -133,6 +144,9 @@ struct UA_ServerConfig {
     UA_UInt32Range keepAliveCountLimits;
     UA_UInt32 maxNotificationsPerPublish;
     UA_UInt32 maxRetransmissionQueueSize; /* 0 -> unlimited size */
+#ifdef UA_ENABLE_SUBSCRIPTIONS_EVENTS
+    UA_UInt32 maxEventsPerNode; /* 0 -> unlimited size */
+#endif
 
     /* Limits for MonitoredItems */
     UA_UInt32 maxMonitoredItemsPerSubscription;
@@ -151,6 +165,29 @@ struct UA_ServerConfig {
      * ervery 10 seconds. The server will still be removed depending on the
      * state of the semaphore file. */
     UA_UInt32 discoveryCleanupTimeout;
+#endif
+
+    /* Historical Access */
+#ifdef UA_ENABLE_HISTORIZING
+    UA_Boolean accessHistoryDataCapability;
+    UA_UInt32  maxReturnDataValues; /* 0 -> unlimited size */
+    
+    UA_Boolean accessHistoryEventsCapability;
+    UA_UInt32  maxReturnEventValues; /* 0 -> unlimited size */
+
+    UA_Boolean insertDataCapability;
+    UA_Boolean insertEventCapability;
+    UA_Boolean insertAnnotationsCapability;
+
+    UA_Boolean replaceDataCapability;
+    UA_Boolean replaceEventCapability;
+    
+    UA_Boolean updateDataCapability;
+    UA_Boolean updateEventCapability;
+    
+    UA_Boolean deleteRawCapability;
+    UA_Boolean deleteEventCapability;
+    UA_Boolean deleteAtTimeDataCapability;
 #endif
 };
 

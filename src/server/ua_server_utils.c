@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. 
  *
- *    Copyright 2016-2017 (c) Julius Pfrommer, Fraunhofer IOSB
+ *    Copyright 2016-2017 (c) Fraunhofer IOSB (Author: Julius Pfrommer)
  *    Copyright 2016 (c) Lorenz Haas
  *    Copyright 2017 (c) frax2222
  *    Copyright 2017 (c) Florian Palm
@@ -13,83 +13,6 @@
 #include "ua_server_internal.h"
 
 #define UA_MAX_TREE_RECURSE 50 /* How deep up/down the tree do we recurse at most? */
-
-/**********************/
-/* Parse NumericRange */
-/**********************/
-
-static size_t
-readDimension(UA_Byte *buf, size_t buflen, UA_NumericRangeDimension *dim) {
-    size_t progress = UA_readNumber(buf, buflen, &dim->min);
-    if(progress == 0)
-        return 0;
-    if(buflen <= progress + 1 || buf[progress] != ':') {
-        dim->max = dim->min;
-        return progress;
-    }
-
-    ++progress;
-    size_t progress2 = UA_readNumber(&buf[progress], buflen - progress, &dim->max);
-    if(progress2 == 0)
-        return 0;
-
-    /* invalid range */
-    if(dim->min >= dim->max)
-        return 0;
-
-    return progress + progress2;
-}
-
-UA_StatusCode
-UA_NumericRange_parseFromString(UA_NumericRange *range, const UA_String *str) {
-    size_t idx = 0;
-    size_t dimensionsMax = 0;
-    UA_NumericRangeDimension *dimensions = NULL;
-    UA_StatusCode retval = UA_STATUSCODE_GOOD;
-    size_t offset = 0;
-    while(true) {
-        /* alloc dimensions */
-        if(idx >= dimensionsMax) {
-            UA_NumericRangeDimension *newds;
-            size_t newdssize = sizeof(UA_NumericRangeDimension) * (dimensionsMax + 2);
-            newds = (UA_NumericRangeDimension*)UA_realloc(dimensions, newdssize);
-            if(!newds) {
-                retval = UA_STATUSCODE_BADOUTOFMEMORY;
-                break;
-            }
-            dimensions = newds;
-            dimensionsMax = dimensionsMax + 2;
-        }
-
-        /* read the dimension */
-        size_t progress = readDimension(&str->data[offset], str->length - offset,
-                                        &dimensions[idx]);
-        if(progress == 0) {
-            retval = UA_STATUSCODE_BADINDEXRANGEINVALID;
-            break;
-        }
-        offset += progress;
-        ++idx;
-
-        /* loop into the next dimension */
-        if(offset >= str->length)
-            break;
-
-        if(str->data[offset] != ',') {
-            retval = UA_STATUSCODE_BADINDEXRANGEINVALID;
-            break;
-        }
-        ++offset;
-    }
-
-    if(retval == UA_STATUSCODE_GOOD && idx > 0) {
-        range->dimensions = dimensions;
-        range->dimensionsSize = idx;
-    } else
-        UA_free(dimensions);
-
-    return retval;
-}
 
 /********************************/
 /* Information Model Operations */
@@ -354,27 +277,32 @@ UA_StatusCode
 UA_Server_editNode(UA_Server *server, UA_Session *session,
                    const UA_NodeId *nodeId, UA_EditNodeCallback callback,
                    void *data) {
-#ifndef UA_ENABLE_MULTITHREADING
+#ifndef UA_ENABLE_IMMUTABLE_NODES
+    /* Get the node and process it in-situ */
     const UA_Node *node = UA_Nodestore_get(server, nodeId);
     if(!node)
         return UA_STATUSCODE_BADNODEIDUNKNOWN;
-    UA_StatusCode retval = callback(server, session,
-                                    (UA_Node*)(uintptr_t)node, data);
+    UA_StatusCode retval = callback(server, session, (UA_Node*)(uintptr_t)node, data);
     UA_Nodestore_release(server, node);
     return retval;
 #else
     UA_StatusCode retval;
     do {
+        /* Get an editable copy of the node */
         UA_Node *node;
-        retval = server->config.nodestore.getNodeCopy(server->config.nodestore.context,
-                                                      nodeId, &node);
+        retval = server->config.nodestore.
+            getNodeCopy(server->config.nodestore.context, nodeId, &node);
         if(retval != UA_STATUSCODE_GOOD)
             return retval;
+
+        /* Run the operation on the copy */
         retval = callback(server, session, node, data);
         if(retval != UA_STATUSCODE_GOOD) {
             server->config.nodestore.deleteNode(server->config.nodestore.context, node);
             return retval;
         }
+
+        /* Replace the node */
         retval = server->config.nodestore.replaceNode(server->config.nodestore.context, node);
     } while(retval != UA_STATUSCODE_GOOD);
     return retval;
@@ -409,6 +337,10 @@ UA_Server_processServiceOperations(UA_Server *server, UA_Session *session,
     }
     return UA_STATUSCODE_GOOD;
 }
+
+/* A few global NodeId definitions */
+const UA_NodeId subtypeId = {0, UA_NODEIDTYPE_NUMERIC, {UA_NS0ID_HASSUBTYPE}};
+const UA_NodeId hierarchicalReferences = {0, UA_NODEIDTYPE_NUMERIC, {UA_NS0ID_HIERARCHICALREFERENCES}};
 
 /*********************************/
 /* Default attribute definitions */

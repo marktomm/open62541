@@ -20,43 +20,9 @@ from nodes import *
 from backend_open62541_datatypes import *
 import re
 import datetime
-
-###########################################
-# Extract References with Special Meaning #
-###########################################
-
 import logging
 
 logger = logging.getLogger(__name__)
-
-def extractNodeParent(node, parentrefs):
-    """Return a tuple of the most likely (parent, parentReference). The
-    parentReference is removed form the inverse references list of the node.
-
-    """
-    for ref in node.inverseReferences:
-        if ref.referenceType in parentrefs:
-            node.inverseReferences.remove(ref)
-            if ref in node.printRefs:
-                node.printRefs.remove(ref)
-            return (ref.target, ref.referenceType)
-    return None, None
-
-def extractNodeType(node):
-    """Returns the most likely type of the variable- or objecttype node. The
-     isinstanceof reference is removed form the inverse references list of the
-     node.
-
-    """
-    pass
-
-def extractNodeSuperType(node):
-    """Returns the most likely supertype of the variable-, object-, or referencetype
-       node. The reference to the supertype is removed from the inverse
-       references list of the node.
-
-    """
-    pass
 
 #################
 # Generate Code #
@@ -124,8 +90,12 @@ def generateVariableNodeCode(node, nodeset, max_string_length):
         code.append("attr.arrayDimensionsSize = %d;" % node.valueRank)
         code.append("attr.arrayDimensions = (UA_UInt32 *)UA_Array_new({}, &UA_TYPES[UA_TYPES_UINT32]);".format(node.valueRank))
         codeCleanup.append("UA_Array_delete(attr.arrayDimensions, {}, &UA_TYPES[UA_TYPES_UINT32]);".format(node.valueRank))
-        for dim in range(0, node.valueRank):
-            code.append("attr.arrayDimensions[{}] = 0;".format(dim))
+        if len(node.arrayDimensions) == node.valueRank:
+            for idx, v in enumerate(node.arrayDimensions):
+                code.append("attr.arrayDimensions[{}] = {};".format(idx, int(unicode(v))))
+        else:
+            for dim in range(0, node.valueRank):
+                code.append("attr.arrayDimensions[{}] = 0;".format(dim))
 
     if node.dataType is not None:
         if isinstance(node.dataType, NodeId) and node.dataType.ns == 0 and node.dataType.i == 0:
@@ -144,6 +114,9 @@ def generateVariableNodeCode(node, nodeset, max_string_length):
                     [code1, codeCleanup1] = generateValueCode(node.value, nodeset.nodes[node.id], nodeset, max_string_length=max_string_length)
                     code += code1
                     codeCleanup += codeCleanup1
+                    if node.valueRank > 0 and len(node.arrayDimensions) == node.valueRank:
+                        code.append("attr.value.arrayDimensionsSize = attr.arrayDimensionsSize;")
+                        code.append("attr.value.arrayDimensions = attr.arrayDimensions;")
                 else:
                     code += generateValueCodeDummy(dataTypeNode, nodeset.nodes[node.id], nodeset)
     return [code, codeCleanup]
@@ -290,25 +263,23 @@ def generateExtensionObjectSubtypeCode(node, parent, nodeset, recursionDepth=0, 
     return [code, codeCleanup]
 
 
-def generateValueCodeDummy(dataTypeNode, parentNode, nodeset, bootstrapping=True):
+def generateValueCodeDummy(dataTypeNode, parentNode, nodeset):
     code = []
     valueName = generateNodeIdPrintable(parentNode) + "_variant_DataContents"
 
     typeBrowseNode = dataTypeNode.browseName.name
     if typeBrowseNode == "NumericRange":
-        # in the stack we define a separate structure for the numeric range, but the value itself is just a string
+        # in the stack we define a separate structure for the numeric range, but
+        # the value itself is just a string
         typeBrowseNode = "String"
 
     typeArr = dataTypeNode.typesArray + "[" + dataTypeNode.typesArray + "_" + typeBrowseNode.upper() + "]"
     typeStr = "UA_" + typeBrowseNode
 
     if parentNode.valueRank > 0:
-        code.append("UA_STACKARRAY(" + typeStr + ", " + valueName + "," + str(parentNode.valueRank) + ");")
         for i in range(0, parentNode.valueRank):
-            code.append("UA_init(&" + valueName + "[" + str(i) + "], &" + typeArr + ");")
-            code.append("UA_Variant_setArray(&attr.value, " + valueName + ", (UA_Int32) " +
-                        str(parentNode.valueRank) + ", &" + typeArr + ");")
-    else:
+            code.append("UA_Variant_setArray(&attr.value, NULL, (UA_Int32) " + "0, &" + typeArr + ");")
+    elif not dataTypeNode.isAbstract:
         code.append("UA_STACKARRAY(" + typeStr + ", " + valueName + ", 1);")
         code.append("UA_init(" + valueName + ", &" + typeArr + ");")
         code.append("UA_Variant_setScalar(&attr.value, " + valueName + ", &" + typeArr + ");")
@@ -349,21 +320,21 @@ def generateValueCode(node, parentNode, nodeset, bootstrapping=True, max_string_
                                        or (len(node.value) > 1
                                            and (parentNode.valueRank != -2 or parentNode.valueRank != -3))):
         # User the following strategy for all directly mappable values a la 'UA_Type MyInt = (UA_Type) 23;'
-        if node.value[0].numericRepresentation == BUILTINTYPE_TYPEID_GUID:
+        if isinstance(node.value[0], Guid):
             logger.warn("Don't know how to print array of GUID in node " + str(parentNode.id))
-        elif node.value[0].numericRepresentation == BUILTINTYPE_TYPEID_DIAGNOSTICINFO:
+        elif isinstance(node.value[0], DiagnosticInfo):
             logger.warn("Don't know how to print array of DiagnosticInfo in node " + str(parentNode.id))
-        elif node.value[0].numericRepresentation == BUILTINTYPE_TYPEID_STATUSCODE:
+        elif isinstance(node.value[0], StatusCode):
             logger.warn("Don't know how to print array of StatusCode in node " + str(parentNode.id))
         else:
-            if node.value[0].numericRepresentation == BUILTINTYPE_TYPEID_EXTENSIONOBJECT:
+            if isinstance(node.value[0], ExtensionObject):
                 for idx, v in enumerate(node.value):
                     logger.debug("Building extObj array index " + str(idx))
                     [code1, codeCleanup1] = generateExtensionObjectSubtypeCode(v, parent=parentNode, nodeset=nodeset, arrayIndex=idx, max_string_length=max_string_length)
                     code = code + code1
                     codeCleanup = codeCleanup + codeCleanup1
             code.append("UA_" + node.value[0].__class__.__name__ + " " + valueName + "[" + str(len(node.value)) + "];")
-            if node.value[0].numericRepresentation == BUILTINTYPE_TYPEID_EXTENSIONOBJECT:
+            if isinstance(node.value[0], ExtensionObject):
                 for idx, v in enumerate(node.value):
                     logger.debug("Printing extObj array index " + str(idx))
                     instanceName = generateNodeValueInstanceName(v, parentNode, 0, idx)
@@ -381,20 +352,20 @@ def generateValueCode(node, parentNode, nodeset, bootstrapping=True, max_string_
                         getTypesArrayForValue(nodeset, node.value[0]) + ");")
     else:
         # User the following strategy for all directly mappable values a la 'UA_Type MyInt = (UA_Type) 23;'
-        if node.value[0].numericRepresentation == BUILTINTYPE_TYPEID_GUID:
+        if isinstance(node.value[0], Guid):
             logger.warn("Don't know how to print scalar GUID in node " + str(parentNode.id))
-        elif node.value[0].numericRepresentation == BUILTINTYPE_TYPEID_DIAGNOSTICINFO:
+        elif isinstance(node.value[0], DiagnosticInfo):
             logger.warn("Don't know how to print scalar DiagnosticInfo in node " + str(parentNode.id))
-        elif node.value[0].numericRepresentation == BUILTINTYPE_TYPEID_STATUSCODE:
+        elif isinstance(node.value[0], StatusCode):
             logger.warn("Don't know how to print scalar StatusCode in node " + str(parentNode.id))
         else:
             # The following strategy applies to all other types, in particular strings and numerics.
-            if node.value[0].numericRepresentation == BUILTINTYPE_TYPEID_EXTENSIONOBJECT:
+            if isinstance(node.value[0], ExtensionObject):
                 [code1, codeCleanup1] = generateExtensionObjectSubtypeCode(node.value[0], parent=parentNode, nodeset=nodeset, max_string_length=max_string_length)
                 code = code + code1
                 codeCleanup = codeCleanup + codeCleanup1
             instanceName = generateNodeValueInstanceName(node.value[0], parentNode, 0, 0)
-            if node.value[0].numericRepresentation == BUILTINTYPE_TYPEID_EXTENSIONOBJECT:
+            if isinstance(node.value[0], ExtensionObject):
                 code.append("UA_" + node.value[0].__class__.__name__ + " *" + valueName + " = " +
                             generateNodeValueCode(node.value[0], instanceName, max_string_length=max_string_length) + ";")
                 code.append(
@@ -459,12 +430,12 @@ def generateSubtypeOfDefinitionCode(node):
             return generateNodeIdCode(ref.target)
     return "UA_NODEID_NULL"
 
-def generateNodeCode_begin(node, nodeset, max_string_length, generate_ns0, parentrefs):
+def generateNodeCode_begin(node, nodeset, max_string_length, generate_ns0, parentref):
     code = []
+    codeCleanup = []
     code.append("UA_StatusCode retVal = UA_STATUSCODE_GOOD;")
 
-    codeCleanup = []
-
+    # Attributes
     if isinstance(node, ReferenceTypeNode):
         code.extend(generateReferenceTypeNodeCode(node))
     elif isinstance(node, ObjectNode):
@@ -485,48 +456,33 @@ def generateNodeCode_begin(node, nodeset, max_string_length, generate_ns0, paren
         code.extend(generateDataTypeNodeCode(node))
     elif isinstance(node, ViewNode):
         code.extend(generateViewNodeCode(node))
-
-    code.append("attr.displayName = " + generateLocalizedTextCode(node.displayName, alloc=False, max_string_length=max_string_length) + ";")
-    code.append("attr.description = " + generateLocalizedTextCode(node.description, alloc=False, max_string_length=max_string_length) + ";")
+    code.append("attr.displayName = " + generateLocalizedTextCode(node.displayName, alloc=False,
+                                                                  max_string_length=max_string_length) + ";")
+    code.append("attr.description = " + generateLocalizedTextCode(node.description, alloc=False,
+                                                                  max_string_length=max_string_length) + ";")
     code.append("attr.writeMask = %d;" % node.writeMask)
     code.append("attr.userWriteMask = %d;" % node.userWriteMask)
 
-    typeDef = getNodeTypeDefinition(node)
-    isDataTypeEncodingType = typeDef is not None and typeDef.ns == 0 and typeDef.i == 76
-    # Object nodes of type DataTypeEncoding do not have any parent
-    if not generate_ns0 and not isDataTypeEncodingType:
-        (parentNode, parentRef) = extractNodeParent(node, parentrefs)
-        if parentNode is None or parentRef is None:
-            return None
-    else:
-        (parentNode, parentRef) = (NodeId(), NodeId())
-
-    code.append("retVal |= UA_Server_addNode_begin(server, UA_NODECLASS_{},".format(node.__class__.__name__.upper().replace("NODE" ,"")))
+    # AddNodes call
+    code.append("retVal |= UA_Server_addNode_begin(server, UA_NODECLASS_{},".
+                format(node.__class__.__name__.upper().replace("NODE" ,"")))
     code.append(generateNodeIdCode(node.id) + ",")
-    code.append(generateNodeIdCode(parentNode) + ",")
-    code.append(generateNodeIdCode(parentRef) + ",")
+    code.append(generateNodeIdCode(parentref.target) + ",")
+    code.append(generateNodeIdCode(parentref.referenceType) + ",")
     code.append(generateQualifiedNameCode(node.browseName, max_string_length=max_string_length) + ",")
-    if isinstance(node, VariableTypeNode):
-        # we need the HasSubtype reference
-        code.append(generateSubtypeOfDefinitionCode(node) + ",")
-    elif isinstance(node, VariableNode) or isinstance(node, ObjectNode):
-        typeDefCode = "UA_NODEID_NULL" if typeDef is None else generateNodeIdCode(typeDef)
-        code.append(typeDefCode + ",")
-        # remove hasTypeDef reference from list to be printed
-        for ref in node.printRefs:
-            if ref.referenceType.i == 40:
-                if (ref.isForward and ref.source == node.id) or (not ref.isForward and ref.target == node.id):
-                    node.printRefs.remove(ref)
+    if isinstance(node, VariableNode) or isinstance(node, ObjectNode):
+        typeDefRef = node.popTypeDef()
+        code.append(generateNodeIdCode(typeDefRef.target) + ",")
     else:
-        code.append("UA_NODEID_NULL,")
-    code.append("(const UA_NodeAttributes*)&attr, &UA_TYPES[UA_TYPES_{}ATTRIBUTES],NULL, NULL);".format(node.__class__.__name__.upper().replace("NODE" ,"")))
+        code.append(" UA_NODEID_NULL,")
+    code.append("(const UA_NodeAttributes*)&attr, &UA_TYPES[UA_TYPES_{}ATTRIBUTES],NULL, NULL);".
+                format(node.__class__.__name__.upper().replace("NODE" ,"")))
     code.extend(codeCleanup)
     
     return "\n".join(code)
 
 def generateNodeCode_finish(node):
     code = []
-
 
     if isinstance(node, MethodNode):
         code.append("UA_Server_addMethodNode_finish(server, ")

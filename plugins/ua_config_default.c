@@ -1,12 +1,13 @@
 /* This work is licensed under a Creative Commons CCZero 1.0 Universal License.
  * See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
  *
- *    Copyright 2017 (c) Julius Pfrommer, Fraunhofer IOSB
+ *    Copyright 2017 (c) Fraunhofer IOSB (Author: Julius Pfrommer)
  *    Copyright 2017 (c) Julian Grothoff
  *    Copyright 2017-2018 (c) Mark Giraud, Fraunhofer IOSB
  *    Copyright 2017 (c) Stefan Profanter, fortiss GmbH
  *    Copyright 2017 (c) Thomas Stalder, Blue Time Concept SA
  *    Copyright 2018 (c) Daniel Feist, Precitec GmbH & Co. KG
+ *    Copyright 2018 (c) Fabian Arndt, Root-Core
  */
 
 #include "ua_plugin_securitypolicy.h"
@@ -268,6 +269,9 @@ createDefaultConfig(void) {
     conf->keepAliveCountLimits = UA_UINT32RANGE(1, 100);
     conf->maxNotificationsPerPublish = 1000;
     conf->maxRetransmissionQueueSize = 0; /* unlimited */
+#ifdef UA_ENABLE_SUBSCRIPTIONS_EVENTS
+    conf->maxEventsPerNode = 0; /* unlimited */
+#endif
 
     /* Limits for MonitoredItems */
     conf->samplingIntervalLimits = UA_DURATIONRANGE(50.0, 24.0 * 3600.0 * 1000.0);
@@ -275,6 +279,28 @@ createDefaultConfig(void) {
 
 #ifdef UA_ENABLE_DISCOVERY
     conf->discoveryCleanupTimeout = 60 * 60;
+#endif
+
+#ifdef UA_ENABLE_HISTORIZING
+    /* conf->accessHistoryDataCapability = UA_FALSE; */
+    /* conf->maxReturnDataValues = 0; */
+
+    /* conf->accessHistoryEventsCapability = UA_FALSE; */
+    /* conf->maxReturnEventValues = 0; */
+
+    /* conf->insertDataCapability = UA_FALSE; */
+    /* conf->insertEventCapability = UA_FALSE; */
+    /* conf->insertAnnotationsCapability = UA_FALSE; */
+
+    /* conf->replaceDataCapability = UA_FALSE; */
+    /* conf->replaceEventCapability = UA_FALSE; */
+
+    /* conf->updateDataCapability = UA_FALSE; */
+    /* conf->updateEventCapability = UA_FALSE; */
+
+    /* conf->deleteRawCapability = UA_FALSE; */
+    /* conf->deleteEventCapability = UA_FALSE; */
+    /* conf->deleteAtTimeDataCapability = UA_FALSE; */
 #endif
 
     /* --> Finish setting the default static config <-- */
@@ -637,20 +663,20 @@ const UA_ClientConfig UA_ClientConfig_default = {
         0, /* .maxMessageSize, 0 -> unlimited */
         0 /* .maxChunkCount, 0 -> unlimited */
     },
-    UA_ClientConnectionTCP, /* .connectionFunc */
-
+    UA_ClientConnectionTCP, /* .connectionFunc (for sync connection) */
+    UA_ClientConnectionTCP_init, /* .initConnectionFunc (for async client) */
+    UA_ClientConnectionTCP_poll, /* .pollConnectionFunc (for async connection) */
     0, /* .customDataTypesSize */
-    NULL, /*.customDataTypes */
+    NULL, /* .customDataTypes */
 
-    NULL, /*.stateCallback */
-    NULL, /*.subscriptionInactivityCallback */
-
-    NULL,  /*.clientContext */
-
-    10 /* .outStandingPublishRequests */
+    NULL, /* .stateCallback */
+#ifdef UA_ENABLE_SUBSCRIPTIONS
+    NULL, /* .subscriptionInactivityCallback */
+#endif
+    NULL, /* .inactivityCallback */
+    NULL, /* .clientContext */
+#ifdef UA_ENABLE_SUBSCRIPTIONS
+    10, /* .outStandingPublishRequests */
+#endif
+    0 /* .connectivityCheckInterval */
 };
-
-UA_ClientConfig UA_Server_getClientConfig(void)
-{
-    return UA_ClientConfig_default;
-}

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. 
  *
- *    Copyright 2014-2018 (c) Julius Pfrommer, Fraunhofer IOSB
+ *    Copyright 2014-2018 (c) Fraunhofer IOSB (Author: Julius Pfrommer)
  *    Copyright 2015-2016 (c) Sten Grüner
  *    Copyright 2014-2017 (c) Florian Palm
  *    Copyright 2015 (c) Christian Fimmers
@@ -518,6 +518,37 @@ __UA_Server_read(UA_Server *server, const UA_NodeId *nodeId,
     return retval;
 }
 
+UA_StatusCode
+UA_Server_readObjectProperty(UA_Server *server, const UA_NodeId objectId,
+                             const UA_QualifiedName propertyName,
+                             UA_Variant *value) {
+    UA_RelativePathElement rpe;
+    UA_RelativePathElement_init(&rpe);
+    rpe.referenceTypeId = UA_NODEID_NUMERIC(0, UA_NS0ID_HASPROPERTY);
+    rpe.isInverse = false;
+    rpe.includeSubtypes = false;
+    rpe.targetName = propertyName;
+
+    UA_BrowsePath bp;
+    UA_BrowsePath_init(&bp);
+    bp.startingNode = objectId;
+    bp.relativePath.elementsSize = 1;
+    bp.relativePath.elements = &rpe;
+
+    UA_StatusCode retval;
+    UA_BrowsePathResult bpr = UA_Server_translateBrowsePathToNodeIds(server, &bp);
+    if(bpr.statusCode != UA_STATUSCODE_GOOD || bpr.targetsSize < 1) {
+        retval = bpr.statusCode;
+        UA_BrowsePathResult_deleteMembers(&bpr);
+        return retval;
+    }
+
+    retval = UA_Server_readValue(server, bpr.targets[0].targetId.nodeId, value);
+
+    UA_BrowsePathResult_deleteMembers(&bpr);
+    return retval;
+}
+
 /*****************/
 /* Type Checking */
 /*****************/
@@ -539,7 +570,6 @@ typeEquivalence(const UA_DataType *t) {
     return TYPE_EQUIVALENCE_NONE;
 }
 
-const UA_NodeId subtypeId = {0, UA_NODEIDTYPE_NUMERIC, {UA_NS0ID_HASSUBTYPE}};
 static const UA_NodeId enumNodeId = {0, UA_NODEIDTYPE_NUMERIC, {UA_NS0ID_ENUMERATION}};
 
 UA_Boolean
@@ -646,12 +676,12 @@ compatibleValueRanks(UA_Int32 valueRank, UA_Int32 constraintValueRank) {
 /* Check if the valuerank allows for the value dimension */
 static UA_Boolean
 compatibleValueRankValue(UA_Int32 valueRank, const UA_Variant *value) {
-    /* empty arrays (-1) always match */
+    /* Empty arrays (-1) always match */
     if(!value->data)
-        return false;
+        return true;
 
     size_t arrayDims = value->arrayDimensionsSize;
-    if(!UA_Variant_isScalar(value))
+    if(arrayDims == 0 && !UA_Variant_isScalar(value))
         arrayDims = 1; /* array but no arraydimensions -> implicit array dimension 1 */
     return compatibleValueRankArrayDimensions(valueRank, arrayDims);
 }
@@ -698,11 +728,22 @@ compatibleValue(UA_Server *server, const UA_NodeId *targetDataTypeId,
                 UA_Int32 targetValueRank, size_t targetArrayDimensionsSize,
                 const UA_UInt32 *targetArrayDimensions, const UA_Variant *value,
                 const UA_NumericRange *range) {
-    /* Empty variant is only allowed for BaseDataType */
+    /* Empty value */
     if(!value->type) {
+        /* Empty value is allowed for BaseDataType */
         if(UA_NodeId_equal(targetDataTypeId, &UA_TYPES[UA_TYPES_VARIANT].typeId) ||
            UA_NodeId_equal(targetDataTypeId, &UA_NODEID_NULL))
             return true;
+
+        /* Workaround: Allow empty value if the target data type is abstract */
+        const UA_Node *datatype = UA_Nodestore_get(server, targetDataTypeId);
+        if(datatype && datatype->nodeClass == UA_NODECLASS_DATATYPE) {
+            UA_Boolean isAbstract = ((const UA_DataTypeNode*)datatype)->isAbstract;
+            UA_Nodestore_release(server, datatype);
+            if(isAbstract)
+                return true;
+        }
+
         UA_LOG_INFO(server->config.logger, UA_LOGCATEGORY_SERVER,
                     "Only Variables with data type BaseDataType may contain "
                     "a null (empty) value");
@@ -1330,4 +1371,45 @@ __UA_Server_write(UA_Server *server, const UA_NodeId *nodeId,
         wvalue.value.value = *(const UA_Variant*)attr;
     }
     return UA_Server_write(server, &wvalue);
+}
+
+UA_StatusCode UA_EXPORT
+UA_Server_writeObjectProperty(UA_Server *server, const UA_NodeId objectId,
+                              const UA_QualifiedName propertyName,
+                              const UA_Variant value) {
+    UA_RelativePathElement rpe;
+    UA_RelativePathElement_init(&rpe);
+    rpe.referenceTypeId = UA_NODEID_NUMERIC(0, UA_NS0ID_HASPROPERTY);
+    rpe.isInverse = false;
+    rpe.includeSubtypes = false;
+    rpe.targetName = propertyName;
+
+    UA_BrowsePath bp;
+    UA_BrowsePath_init(&bp);
+    bp.startingNode = objectId;
+    bp.relativePath.elementsSize = 1;
+    bp.relativePath.elements = &rpe;
+
+    UA_StatusCode retval;
+    UA_BrowsePathResult bpr = UA_Server_translateBrowsePathToNodeIds(server, &bp);
+    if(bpr.statusCode != UA_STATUSCODE_GOOD || bpr.targetsSize < 1) {
+        retval = bpr.statusCode;
+        UA_BrowsePathResult_deleteMembers(&bpr);
+        return retval;
+    }
+
+    retval = UA_Server_writeValue(server, bpr.targets[0].targetId.nodeId, value);
+
+    UA_BrowsePathResult_deleteMembers(&bpr);
+    return retval;
+}
+
+UA_StatusCode UA_EXPORT
+UA_Server_writeObjectProperty_scalar(UA_Server *server, const UA_NodeId objectId,
+                                     const UA_QualifiedName propertyName,
+                                     const void *value, const UA_DataType *type) {
+    UA_Variant var;
+    UA_Variant_init(&var);
+    UA_Variant_setScalar(&var, (void*)(uintptr_t)value, type);
+    return UA_Server_writeObjectProperty(server, objectId, propertyName, var);
 }

@@ -2,17 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. 
  *
- *    Copyright 2017 (c) Julius Pfrommer, Fraunhofer IOSB
+ *    Copyright 2017 (c) Fraunhofer IOSB (Author: Julius Pfrommer)
  *    Copyright 2017 (c) Stefan Profanter, fortiss GmbH
  *    Copyright 2017 (c) Thomas Bender
  *    Copyright 2017 (c) Julian Grothoff
  *    Copyright 2017 (c) Henrik Norrman
+ *    Copyright 2018 (c) Fabian Arndt, Root-Core
  */
 
 #include "ua_server_internal.h"
 #include "ua_namespace0.h"
 #include "ua_subscription.h"
 #include "ua_session.h"
+
 
 /*****************/
 /* Node Creation */
@@ -240,7 +242,7 @@ UA_Server_createNS0_base(UA_Server *server) {
     ret |= addDataTypeNode(server, "LocalizedText", UA_NS0ID_LOCALIZEDTEXT, false, UA_NS0ID_BASEDATATYPE);
     ret |= addDataTypeNode(server, "StatusCode", UA_NS0ID_STATUSCODE, false, UA_NS0ID_BASEDATATYPE);
     ret |= addDataTypeNode(server, "Structure", UA_NS0ID_STRUCTURE, true, UA_NS0ID_BASEDATATYPE);
-    ret |= addDataTypeNode(server, "Decimal128", UA_NS0ID_DECIMAL128, false, UA_NS0ID_NUMBER);
+    ret |= addDataTypeNode(server, "Decimal", UA_NS0ID_DECIMAL, false, UA_NS0ID_NUMBER);
 
     ret |= addDataTypeNode(server, "Duration", UA_NS0ID_DURATION, false, UA_NS0ID_DOUBLE);
     ret |= addDataTypeNode(server, "UtcTime", UA_NS0ID_UTCTIME, false, UA_NS0ID_DATETIME);
@@ -495,6 +497,8 @@ readMonitoredItems(UA_Server *server, const UA_NodeId *sessionId, void *sessionC
     UA_Session *session = UA_SessionManager_getSessionById(&server->sessionManager, sessionId);
     if(!session)
         return UA_STATUSCODE_BADINTERNALERROR;
+    if (inputSize == 0 || !input[0].data)
+        return UA_STATUSCODE_BADSUBSCRIPTIONIDINVALID;
     UA_UInt32 subscriptionId = *((UA_UInt32*)(input[0].data));
     UA_Subscription* subscription = UA_Session_getSubscriptionById(session, subscriptionId);
     if(!subscription)
@@ -557,8 +561,6 @@ UA_Server_initNS0(UA_Server *server) {
     server->bootstrapNS0 = true;
     retVal = ua_namespace0(server);
     server->bootstrapNS0 = false;
-    if(retVal != UA_STATUSCODE_GOOD)
-        return retVal;
 
     /* NamespaceArray */
     UA_DataSource namespaceDataSource = {readNamespaces, NULL};
@@ -582,7 +584,7 @@ UA_Server_initNS0(UA_Server *server) {
                                &maxBrowseContinuationPoints, &UA_TYPES[UA_TYPES_UINT16]);
 
     /* ServerProfileArray */
-    UA_String profileArray[4];
+    UA_String profileArray[5];
     UA_UInt16 profileArraySize = 0;
 #define ADDPROFILEARRAY(x) profileArray[profileArraySize++] = UA_STRING_ALLOC(x)
     ADDPROFILEARRAY("http://opcfoundation.org/UA-Profile/Server/NanoEmbeddedDevice");
@@ -594,6 +596,9 @@ UA_Server_initNS0(UA_Server *server) {
 #endif
 #ifdef UA_ENABLE_SUBSCRIPTIONS
     ADDPROFILEARRAY("http://opcfoundation.org/UA-Profile/Server/EmbeddedDataChangeSubscription");
+#endif
+#ifdef UA_ENABLE_HISTORIZING
+    ADDPROFILEARRAY("http://opcfoundation.org/UA-Profile/Server/HistoricalRawData");
 #endif
 
     retVal |= writeNs0VariableArray(server, UA_NS0ID_SERVER_SERVERCAPABILITIES_SERVERPROFILEARRAY,
@@ -736,9 +741,89 @@ UA_Server_initNS0(UA_Server *server) {
     retVal |= writeNs0Variable(server, UA_NS0ID_SERVER_SERVERCAPABILITIES_OPERATIONLIMITS_MAXMONITOREDITEMSPERCALL,
                                &server->config.maxMonitoredItemsPerCall, &UA_TYPES[UA_TYPES_UINT32]);
 
+#ifdef UA_ENABLE_HISTORIZING
+    /* ServerCapabilities - HistoryServerCapabilities - AccessHistoryDataCapability */
+    retVal |= writeNs0Variable(server, UA_NS0ID_HISTORYSERVERCAPABILITIES_ACCESSHISTORYDATACAPABILITY,
+                               &server->config.accessHistoryDataCapability, &UA_TYPES[UA_TYPES_BOOLEAN]);
+
+    /* ServerCapabilities - HistoryServerCapabilities - MaxReturnDataValues */
+    retVal |= writeNs0Variable(server, UA_NS0ID_HISTORYSERVERCAPABILITIES_MAXRETURNDATAVALUES,
+                               &server->config.maxReturnDataValues, &UA_TYPES[UA_TYPES_UINT32]);
+
+    /* ServerCapabilities - HistoryServerCapabilities - AccessHistoryEventsCapability */
+    retVal |= writeNs0Variable(server, UA_NS0ID_HISTORYSERVERCAPABILITIES_ACCESSHISTORYEVENTSCAPABILITY,
+                               &server->config.accessHistoryEventsCapability, &UA_TYPES[UA_TYPES_BOOLEAN]);
+
+    /* ServerCapabilities - HistoryServerCapabilities - MaxReturnEventValues */
+    retVal |= writeNs0Variable(server, UA_NS0ID_HISTORYSERVERCAPABILITIES_MAXRETURNEVENTVALUES,
+                               &server->config.maxReturnEventValues, &UA_TYPES[UA_TYPES_UINT32]);
+
+    /* ServerCapabilities - HistoryServerCapabilities - InsertDataCapability */
+    retVal |= writeNs0Variable(server, UA_NS0ID_HISTORYSERVERCAPABILITIES_INSERTDATACAPABILITY,
+                               &server->config.insertDataCapability, &UA_TYPES[UA_TYPES_BOOLEAN]);
+
+    /* ServerCapabilities - HistoryServerCapabilities - InsertEventCapability */
+    retVal |= writeNs0Variable(server, UA_NS0ID_HISTORYSERVERCAPABILITIES_INSERTEVENTCAPABILITY,
+                               &server->config.insertEventCapability, &UA_TYPES[UA_TYPES_BOOLEAN]);
+
+    /* ServerCapabilities - HistoryServerCapabilities - InsertAnnotationsCapability */
+    retVal |= writeNs0Variable(server, UA_NS0ID_HISTORYSERVERCAPABILITIES_INSERTANNOTATIONCAPABILITY,
+                               &server->config.insertAnnotationsCapability, &UA_TYPES[UA_TYPES_BOOLEAN]);
+
+    /* ServerCapabilities - HistoryServerCapabilities - ReplaceDataCapability */
+    retVal |= writeNs0Variable(server, UA_NS0ID_HISTORYSERVERCAPABILITIES_REPLACEDATACAPABILITY,
+                               &server->config.replaceDataCapability, &UA_TYPES[UA_TYPES_BOOLEAN]);
+
+    /* ServerCapabilities - HistoryServerCapabilities - ReplaceEventCapability */
+    retVal |= writeNs0Variable(server, UA_NS0ID_HISTORYSERVERCAPABILITIES_REPLACEEVENTCAPABILITY,
+                               &server->config.replaceEventCapability, &UA_TYPES[UA_TYPES_BOOLEAN]);
+
+    /* ServerCapabilities - HistoryServerCapabilities - UpdateDataCapability */
+    retVal |= writeNs0Variable(server, UA_NS0ID_HISTORYSERVERCAPABILITIES_UPDATEDATACAPABILITY,
+                               &server->config.updateDataCapability, &UA_TYPES[UA_TYPES_BOOLEAN]);
+
+    /* ServerCapabilities - HistoryServerCapabilities - UpdateEventCapability */
+    retVal |= writeNs0Variable(server, UA_NS0ID_HISTORYSERVERCAPABILITIES_UPDATEEVENTCAPABILITY,
+                               &server->config.updateEventCapability, &UA_TYPES[UA_TYPES_BOOLEAN]);
+
+    /* ServerCapabilities - HistoryServerCapabilities - DeleteRawCapability */
+    retVal |= writeNs0Variable(server, UA_NS0ID_HISTORYSERVERCAPABILITIES_DELETERAWCAPABILITY,
+                               &server->config.deleteRawCapability, &UA_TYPES[UA_TYPES_BOOLEAN]);
+
+    /* ServerCapabilities - HistoryServerCapabilities - DeleteEventCapability */
+    retVal |= writeNs0Variable(server, UA_NS0ID_HISTORYSERVERCAPABILITIES_DELETEEVENTCAPABILITY,
+                               &server->config.deleteEventCapability, &UA_TYPES[UA_TYPES_BOOLEAN]);
+
+    /* ServerCapabilities - HistoryServerCapabilities - DeleteAtTimeDataCapability */
+    retVal |= writeNs0Variable(server, UA_NS0ID_HISTORYSERVERCAPABILITIES_DELETEATTIMECAPABILITY,
+                               &server->config.deleteAtTimeDataCapability, &UA_TYPES[UA_TYPES_BOOLEAN]);
+#endif
+
 #if defined(UA_ENABLE_METHODCALLS) && defined(UA_ENABLE_SUBSCRIPTIONS)
     retVal |= UA_Server_setMethodNode_callback(server,
                         UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER_GETMONITOREDITEMS), readMonitoredItems);
 #endif
-    return retVal;
+
+
+    /* create the OverFlowEventType
+     * The EventQueueOverflowEventType is defined as abstract, therefore we can not create an instance of that type
+     * directly, but need to create a subtype. This is already posted on the OPC Foundation bug tracker under the
+     * following link for clarification: https://opcfoundation-onlineapplications.org/mantis/view.php?id=4206 */
+#ifdef UA_ENABLE_SUBSCRIPTIONS_EVENTS
+    UA_ObjectTypeAttributes overflowAttr = UA_ObjectTypeAttributes_default;
+    overflowAttr.description = UA_LOCALIZEDTEXT("en-US", "A simple event for indicating a queue overflow.");
+    overflowAttr.displayName = UA_LOCALIZEDTEXT("en-US", "SimpleOverflowEventType");
+    UA_Server_addObjectTypeNode(server, UA_NODEID_NUMERIC(0, UA_NS0ID_SIMPLEOVERFLOWEVENTTYPE),
+                                UA_NODEID_NUMERIC(0, UA_NS0ID_EVENTQUEUEOVERFLOWEVENTTYPE),
+                                UA_NODEID_NUMERIC(0, UA_NS0ID_HASSUBTYPE),
+                                UA_QUALIFIEDNAME(0, "SimpleOverflowEventType"),
+                                overflowAttr, NULL, NULL);
+#endif
+
+    if(retVal != UA_STATUSCODE_GOOD)
+        UA_LOG_ERROR(server->config.logger, UA_LOGCATEGORY_SERVER,
+                     "Initialization of Namespace 0 (after bootstrapping) "
+                     "failed with %s. See previous outputs for any error messages.",
+                     UA_StatusCode_name(retVal));
+    return UA_STATUSCODE_GOOD;
 }

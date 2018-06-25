@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. 
  *
- *    Copyright 2014-2017 (c) Julius Pfrommer, Fraunhofer IOSB
+ *    Copyright 2014-2017 (c) Fraunhofer IOSB (Author: Julius Pfrommer)
  *    Copyright 2014, 2016-2017 (c) Florian Palm
  *    Copyright 2014-2016 (c) Sten Grüner
  *    Copyright 2014 (c) Leon Urbas
@@ -114,9 +114,30 @@ UA_String_equal(const UA_String *s1, const UA_String *s2) {
     return (is == 0) ? true : false;
 }
 
+static UA_StatusCode
+String_copy(UA_String const *src, UA_String *dst, const UA_DataType *_) {
+    UA_StatusCode retval = UA_Array_copy(src->data, src->length, (void**)&dst->data,
+                                         &UA_TYPES[UA_TYPES_BYTE]);
+    if(retval == UA_STATUSCODE_GOOD)
+        dst->length = src->length;
+    return retval;
+}
+
 static void
 String_deleteMembers(UA_String *s, const UA_DataType *_) {
-    UA_free((void*)((uintptr_t)s->data & ~(uintptr_t)UA_EMPTY_ARRAY_SENTINEL));
+    UA_Array_delete(s->data, s->length, &UA_TYPES[UA_TYPES_BYTE]);
+}
+
+/* QualifiedName */
+static UA_StatusCode
+QualifiedName_copy(const UA_QualifiedName *src, UA_QualifiedName *dst, const UA_DataType *_) {
+    dst->namespaceIndex = src->namespaceIndex;
+    return String_copy(&src->name, &dst->name, NULL);
+}
+
+static void
+QualifiedName_deleteMembers(UA_QualifiedName *p, const UA_DataType *_) {
+    String_deleteMembers(&p->name, NULL);
 }
 
 UA_Boolean
@@ -154,41 +175,6 @@ UA_DateTime_toStruct(UA_DateTime t) {
     dateTimeStruct.month  = (u16)(ts.tm_mon + 1);
     dateTimeStruct.year   = (u16)(ts.tm_year + 1900);
     return dateTimeStruct;
-}
-
-static void
-printNumber(u16 n, u8 *pos, size_t digits) {
-    for(size_t i = digits; i > 0; --i) {
-        pos[i-1] = (u8)((n % 10) + '0');
-        n = n / 10;
-    }
-}
-
-UA_String
-UA_DateTime_toString(UA_DateTime t) {
-    /* length of the string is 31 (plus \0 at the end) */
-    UA_String str = {31, (u8*)UA_malloc(32)};
-    if(!str.data)
-        return UA_STRING_NULL;
-    UA_DateTimeStruct tSt = UA_DateTime_toStruct(t);
-    printNumber(tSt.month, str.data, 2);
-    str.data[2] = '/';
-    printNumber(tSt.day, &str.data[3], 2);
-    str.data[5] = '/';
-    printNumber(tSt.year, &str.data[6], 4);
-    str.data[10] = ' ';
-    printNumber(tSt.hour, &str.data[11], 2);
-    str.data[13] = ':';
-    printNumber(tSt.min, &str.data[14], 2);
-    str.data[16] = ':';
-    printNumber(tSt.sec, &str.data[17], 2);
-    str.data[19] = '.';
-    printNumber(tSt.milliSec, &str.data[20], 3);
-    str.data[23] = '.';
-    printNumber(tSt.microSec, &str.data[24], 3);
-    str.data[27] = '.';
-    printNumber(tSt.nanoSec, &str.data[28], 3);
-    return str;
 }
 
 /* Guid */
@@ -583,9 +569,9 @@ computeStrides(const UA_Variant *v, const UA_NumericRange range,
 /* Is the type string-like? */
 static bool
 isStringLike(const UA_DataType *type) {
-    if(type->membersSize == 1 && type->members[0].isArray &&
-       type->members[0].namespaceZero &&
-       type->members[0].memberTypeIndex == UA_TYPES_BYTE)
+    if(type == &UA_TYPES[UA_TYPES_STRING] ||
+       type == &UA_TYPES[UA_TYPES_BYTESTRING] ||
+       type == &UA_TYPES[UA_TYPES_XMLELEMENT])
         return true;
     return false;
 }
@@ -920,16 +906,16 @@ static const UA_copySignature copyJumpTable[UA_BUILTIN_TYPES_COUNT + 1] = {
     (UA_copySignature)copy8Byte, // UInt64
     (UA_copySignature)copy4Byte, // Float
     (UA_copySignature)copy8Byte, // Double
-    (UA_copySignature)copy_noInit, // String
+    (UA_copySignature)String_copy,
     (UA_copySignature)copy8Byte, // DateTime
     (UA_copySignature)copyGuid, // Guid
-    (UA_copySignature)copy_noInit, // ByteString
-    (UA_copySignature)copy_noInit, // XmlElement
+    (UA_copySignature)String_copy, // ByteString
+    (UA_copySignature)String_copy, // XmlElement
     (UA_copySignature)NodeId_copy,
     (UA_copySignature)ExpandedNodeId_copy,
     (UA_copySignature)copy4Byte, // StatusCode
-    (UA_copySignature)copy_noInit, // QualifiedName
-    (UA_copySignature)LocalizedText_copy, // LocalizedText
+    (UA_copySignature)QualifiedName_copy,
+    (UA_copySignature)LocalizedText_copy,
     (UA_copySignature)ExtensionObject_copy,
     (UA_copySignature)DataValue_copy,
     (UA_copySignature)Variant_copy,
@@ -1005,10 +991,10 @@ UA_deleteMembersSignature deleteMembersJumpTable[UA_BUILTIN_TYPES_COUNT + 1] = {
     (UA_deleteMembersSignature)String_deleteMembers, // ByteString
     (UA_deleteMembersSignature)String_deleteMembers, // XmlElement
     (UA_deleteMembersSignature)NodeId_deleteMembers,
-    (UA_deleteMembersSignature)ExpandedNodeId_deleteMembers, // ExpandedNodeId
+    (UA_deleteMembersSignature)ExpandedNodeId_deleteMembers,
     (UA_deleteMembersSignature)nopDeleteMembers, // StatusCode
-    (UA_deleteMembersSignature)deleteMembers_noInit, // QualifiedName
-    (UA_deleteMembersSignature)LocalizedText_deleteMembers, // LocalizedText
+    (UA_deleteMembersSignature)QualifiedName_deleteMembers,
+    (UA_deleteMembersSignature)LocalizedText_deleteMembers,
     (UA_deleteMembersSignature)ExtensionObject_deleteMembers,
     (UA_deleteMembersSignature)DataValue_deleteMembers,
     (UA_deleteMembersSignature)Variant_deletemembers,
@@ -1113,4 +1099,90 @@ UA_Array_delete(void *p, size_t size, const UA_DataType *type) {
         }
     }
     UA_free((void*)((uintptr_t)p & ~(uintptr_t)UA_EMPTY_ARRAY_SENTINEL));
+}
+
+UA_Boolean
+isDataTypeNumeric(const UA_DataType *type) {
+    // All data types ids between UA_TYPES_SBYTE and UA_TYPES_DOUBLE are numeric
+    for (int i = UA_TYPES_SBYTE; i <= UA_TYPES_DOUBLE; ++i)
+        if (&UA_TYPES[i] == type)
+            return true;
+    return false;
+}
+
+/**********************/
+/* Parse NumericRange */
+/**********************/
+
+static size_t
+readDimension(UA_Byte *buf, size_t buflen, UA_NumericRangeDimension *dim) {
+    size_t progress = UA_readNumber(buf, buflen, &dim->min);
+    if(progress == 0)
+        return 0;
+    if(buflen <= progress + 1 || buf[progress] != ':') {
+        dim->max = dim->min;
+        return progress;
+    }
+
+    ++progress;
+    size_t progress2 = UA_readNumber(&buf[progress], buflen - progress, &dim->max);
+    if(progress2 == 0)
+        return 0;
+
+    /* invalid range */
+    if(dim->min >= dim->max)
+        return 0;
+
+    return progress + progress2;
+}
+
+UA_StatusCode
+UA_NumericRange_parseFromString(UA_NumericRange *range, const UA_String *str) {
+    size_t idx = 0;
+    size_t dimensionsMax = 0;
+    UA_NumericRangeDimension *dimensions = NULL;
+    UA_StatusCode retval = UA_STATUSCODE_GOOD;
+    size_t offset = 0;
+    while(true) {
+        /* alloc dimensions */
+        if(idx >= dimensionsMax) {
+            UA_NumericRangeDimension *newds;
+            size_t newdssize = sizeof(UA_NumericRangeDimension) * (dimensionsMax + 2);
+            newds = (UA_NumericRangeDimension*)UA_realloc(dimensions, newdssize);
+            if(!newds) {
+                retval = UA_STATUSCODE_BADOUTOFMEMORY;
+                break;
+            }
+            dimensions = newds;
+            dimensionsMax = dimensionsMax + 2;
+        }
+
+        /* read the dimension */
+        size_t progress = readDimension(&str->data[offset], str->length - offset,
+                                        &dimensions[idx]);
+        if(progress == 0) {
+            retval = UA_STATUSCODE_BADINDEXRANGEINVALID;
+            break;
+        }
+        offset += progress;
+        ++idx;
+
+        /* loop into the next dimension */
+        if(offset >= str->length)
+            break;
+
+        if(str->data[offset] != ',') {
+            retval = UA_STATUSCODE_BADINDEXRANGEINVALID;
+            break;
+        }
+        ++offset;
+    }
+
+    if(retval == UA_STATUSCODE_GOOD && idx > 0) {
+        range->dimensions = dimensions;
+        range->dimensionsSize = idx;
+    } else
+        UA_free(dimensions);
+
+    return retval;
 }
