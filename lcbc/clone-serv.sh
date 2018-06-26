@@ -14,9 +14,11 @@ cd build
 cmake -DBUILD_SHARED_LIBS=ON \
 -DUA_ENABLE_AMALGAMATION=ON \
 -DUA_ENABLE_FULL_NS0=ON \
--DUA_LOGLEVEL=300 ..
+-DUA_LOGLEVEL=100 \
+-DUA_DEBUG=ON \
+-DUA_DEBUG_DUMP_PKGS=ON ..
 
-make -j4
+make -j9
 sudo make install
 
 cd ../lcbc/build
