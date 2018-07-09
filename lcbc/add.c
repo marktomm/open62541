@@ -288,19 +288,24 @@ UA_StatusCode Add_RulesObject_ToFolder(UA_Server *server, const UA_NodeId *folde
     return ret;
 }
 
-UA_StatusCode Add_Variable_ToServer(UA_Server *server, const UA_NodeId *typeDefNodeId, char* fqdn, char* displayName) 
+UA_StatusCode Add_Variable_ToServer(UA_Server *server, const UA_NodeId *typeDefNodeId, char* fqdn, char* displayName, UA_NodeId* ownId) 
 {
     UA_StatusCode ret = UA_STATUSCODE_GOOD;
     UA_NodeId serverNodeId = SERVER_NODEID;
 
     LOG_INFO("Add_Variable_ToServer | typedefns: %d, typedefid: %d", typeDefNodeId->namespaceIndex, typeDefNodeId->identifier.numeric);
 
+    UA_NodeId nodeIdToSet = UA_NODEID_NULL;
+    if(ownId) {
+        nodeIdToSet = *ownId;
+    }
+
     /// add specified Variable to Server Object 
     UA_NodeId instanceId;
     UA_VariableAttributes oAttr = UA_VariableAttributes_default;
     oAttr.displayName = UA_LOCALIZEDTEXT("en-US", displayName);
     ret |= UA_Server_addVariableNode(server, 
-                            UA_NODEID_NULL, /// own NodeId
+                            nodeIdToSet, /// own NodeId
                             serverNodeId, /// parent NodeId
                             UA_NODEID_NUMERIC(0, UA_NS0ID_ORGANIZES), /// reference type; Organizes type for Folder type
                             UA_QUALIFIEDNAME(0, displayName), /// BrowseName attr

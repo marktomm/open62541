@@ -222,6 +222,7 @@ int main(void)
     signal(SIGTERM, stopHandler);
 
     UA_ServerConfig *config = UA_ServerConfig_new_minimal(48020, NULL);
+    // config->keepAliveCountLimits = (UA_UInt32Range) {1, 3};
 
 #ifdef NODECTX
     /// alloc contexts
@@ -241,8 +242,9 @@ int main(void)
     UA_NodeId ruleDiagnosticsEntry_Type_NodeId = RULEDIAGNOSTICSENTRY_TYPE_NODEID(LCBC1_NAMESPACE); /// Own typedefs should be defined as constants and be globaly accessible
     assertStatus(Add_RuleDiagnostisEntry_TypeDef(server, LCBC1_NAMESPACE)); /// call own method to create a TypeDef Variable
     assertStatus(UA_Server_setNodeTypeLifecycle(server, ruleDiagnosticsEntry_Type_NodeId, nodelc)); /// call UA lib to set xtors for TypeDef Variable
-    assertStatus(Add_Variable_ToServer(server, &ruleDiagnosticsEntry_Type_NodeId, "fqdn", "browsename")); /// call own method to add Variable to Server Object
 
+    UA_NodeId varToInspectNodeId = INSPECT_VARIABLE_NODE_ID;
+    assertStatus(Add_Variable_ToServer(server, &ruleDiagnosticsEntry_Type_NodeId, "browsename", "displayname", &varToInspectNodeId)); /// call own method to add Variable to Server Object
 #else
     UA_Server *server = UA_Server_new(config);
 

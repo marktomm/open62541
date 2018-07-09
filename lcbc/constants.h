@@ -4,7 +4,6 @@
 #include  "open62541/open62541.h"
 
 // #define NODECTX 1
-// #define PTRCTX 1
 
 #define STATIC_ENTRIES 100
 #define STATIC_CTX 25000
@@ -15,6 +14,7 @@
 #else
 #define LCBC1_NAMESPACE 2
 #endif
+#define INSPECT_VARIABLE_NODE_ID UA_NODEID_NUMERIC(LCBC1_NAMESPACE, 7777)
 
 #define ManualOverrideState_ID 3
 #define ManualOverrideControl_ID 4
@@ -44,8 +44,10 @@
 #define SERVER_NODEID UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER)
 
 #define LOG_INFO(...) UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, __VA_ARGS__)
+#define LOG_INFOC(...) UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_CLIENT, __VA_ARGS__)
 #define LOG_WARN(...) UA_LOG_WARNING(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, __VA_ARGS__)
 #define LOG_ERROR(...) UA_LOG_ERROR(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, __VA_ARGS__)
+#define LOG_ERRORC(...) UA_LOG_ERROR(UA_Log_Stdout, UA_LOGCATEGORY_CLIENT, __VA_ARGS__)
 
 /// Node Context
 typedef struct LCBC_nodeContext{
@@ -54,30 +56,16 @@ typedef struct LCBC_nodeContext{
     UA_String entries[STATIC_ENTRIES];
 } nodeContext;
 
-#ifdef PTRCTX
-typedef struct LCBC_ptrContext{
-    unsigned long long ptrAddress;
-    size_t entryCount;
-    UA_String entries[STATIC_ENTRIES];
-} ptrContext;
-#endif
-
 typedef struct LCBC_nodeContextContainer {
     size_t contextCount;
     nodeContext contexts[STATIC_CTX];
-#ifdef PTRCTX
-    ptrContext ptrContexts[STATIC_CTX];
-#endif
+
 } nodeContextContainer;
 
 nodeContextContainer* xtor_malloc();
 void xtor_free(nodeContextContainer* p);
 UA_StatusCode xtor_addEntry(nodeContext* p, char* string);
 UA_String* xtor_getEntry(nodeContext* p, size_t i);
-#ifdef PTRCTX
-UA_StatusCode ptr_xtor_addEntry(ptrContext* p, char* string);
-UA_String* ptr_xtor_getEntry(ptrContext* p, size_t i);
-#endif
 UA_StatusCode xtor_addNodeContext(nodeContextContainer* p, UA_NodeId nodeId, char* string);
 nodeContext* xtor_getNodeContext(nodeContextContainer* p, const UA_NodeId *nodeId);
 

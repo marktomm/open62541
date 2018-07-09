@@ -9,6 +9,12 @@ UA_StatusCode LCBC_globalConstructor(UA_Server *server,
 {
     UA_StatusCode retVal = UA_STATUSCODE_GOOD;
 
+    const UA_NodeId variableToInspectNodeId = INSPECT_VARIABLE_NODE_ID;
+    const UA_NodeId typeDefOfVarToInspect = RULEDIAGNOSTICSENTRY_TYPE_NODEID(LCBC1_NAMESPACE);
+    if(!UA_NodeId_equal(nodeId, &variableToInspectNodeId) && !UA_NodeId_equal(nodeId, &typeDefOfVarToInspect)) {
+        return UA_STATUSCODE_GOOD;
+    }
+
     LOG_INFO("LCBC_globalConstructor | ns: %d, id: %d", nodeId->namespaceIndex, nodeId->identifier.numeric);
     LOG_INFO("LCBC_globalConstructor | node ptrptr: %p, ptr: %p", nodeCtx, *nodeCtx);
 
@@ -44,6 +50,12 @@ void LCBC_globalDestructor(UA_Server *server,
                        const UA_NodeId *sessionId, void *sessionContext,
                        const UA_NodeId *nodeId, void *nodeCtx)
 {
+    const UA_NodeId variableToInspectNodeId = INSPECT_VARIABLE_NODE_ID;
+    const UA_NodeId typeDefOfVarToInspect = RULEDIAGNOSTICSENTRY_TYPE_NODEID(LCBC1_NAMESPACE);
+    if(!UA_NodeId_equal(nodeId, &variableToInspectNodeId) && !UA_NodeId_equal(nodeId, &typeDefOfVarToInspect)) {
+        return;
+    }
+
     LOG_INFO("LCBC_globalDestructor | ns: %d, id: %d", nodeId->namespaceIndex, nodeId->identifier.numeric);
     LOG_INFO("LCBC_globalDestructor | node ptr: %p", nodeCtx);
 }
@@ -54,6 +66,11 @@ UA_StatusCode LCBC_ctor_RuleEntryType(UA_Server *server,
                                 const UA_NodeId *nodeId, void **nodeCtx)
 {
     UA_StatusCode retVal = UA_STATUSCODE_GOOD;
+
+    const UA_NodeId variableToInspectNodeId = INSPECT_VARIABLE_NODE_ID;
+    if(!UA_NodeId_equal(nodeId, &variableToInspectNodeId)) {
+        return UA_STATUSCODE_GOOD;
+    }
 
     LOG_INFO("LCBC_ctor_RuleEntryType | ns: %d, id: %d", nodeId->namespaceIndex, nodeId->identifier.numeric);
     LOG_INFO("LCBC_ctor_RuleEntryType | node ptrptr: %p, ptr: %p", nodeCtx, *nodeCtx);
@@ -103,6 +120,11 @@ void LCBC_dtor_RuleEntryType(UA_Server *server,
                     const UA_NodeId *typeNodeId, void *typeNodeContext,
                     const UA_NodeId *nodeId, void **nodeCtx)
 {
+    const UA_NodeId variableToInspectNodeId = INSPECT_VARIABLE_NODE_ID;
+    if(!UA_NodeId_equal(nodeId, &variableToInspectNodeId)) {
+        return ;
+    }
+
     LOG_INFO("LCBC_dtor_RuleEntryType | ns: %d, id: %d", nodeId->namespaceIndex, nodeId->identifier.numeric);
     LOG_INFO("LCBC_dtor_RuleEntryType | node ptrptr: %p, ptr: %p", nodeCtx, *nodeCtx);
     LOG_INFO("LCBC_dtor_RuleEntryType | Type node ptr: %p", typeNodeContext);

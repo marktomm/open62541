@@ -39,30 +39,6 @@ UA_String* xtor_getEntry(nodeContext* p, size_t i)
     return &(p->entries[i]);
 }
 
-#ifdef PTRCTX
-UA_StatusCode ptr_xtor_addEntry(ptrContext* p, char* string)
-{
-    UA_StatusCode retVal = UA_STATUSCODE_GOOD;
-
-    if(!p || !string) {
-        return UA_STATUSCODE_BADOUTOFMEMORY;
-    }
-
-    p->entries[p->entryCount] = UA_STRING(string);
-    p->entryCount++;
-    return retVal;
-}
-
-UA_String* ptr_xtor_getEntry(ptrContext* p, size_t i)
-{
-    if(i >= p->entryCount) {
-        return NULL;
-    }
-
-    return &(p->entries[i]);
-}
-#endif
-
 /// I copy nodeId by value, bc no idea how long it lives
 UA_StatusCode xtor_addNodeContext(nodeContextContainer* p, UA_NodeId nodeId, char* string)
 {
