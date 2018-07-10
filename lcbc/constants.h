@@ -18,6 +18,8 @@
 
 #define ManualOverrideState_ID 3
 #define ManualOverrideControl_ID 4
+#define GuardState_ID 10
+#define GuardStateControl_ID 11
 
 #define F1_State_ID 101
 #define F1_Control_ID 102
@@ -42,6 +44,20 @@
 #define MartemRules_Type_NumericId 30000
 
 #define SERVER_NODEID UA_NODEID_NUMERIC(0, UA_NS0ID_SERVER)
+
+#define FLAG_ALO 1
+#define FLAG_AHI 2
+#define FLAG_INV 4
+#define FLAG_NT 8
+#define FLAG_OVF 16
+#define FLAG_UNINIT 32
+
+#define FLAG_ALO_BIT 1
+#define FLAG_AHI_BIT 2
+#define FLAG_INV_BIT 3
+#define FLAG_NT_BIT 4
+#define FLAG_OVF_BIT 5
+#define FLAG_UNINIT_BIT 6
 
 #define LOG_INFO(...) UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_SERVER, __VA_ARGS__)
 #define LOG_INFOC(...) UA_LOG_INFO(UA_Log_Stdout, UA_LOGCATEGORY_CLIENT, __VA_ARGS__)
@@ -75,6 +91,11 @@ void xtor_setNodeContext(void** nodeCtx, nodeContext* p);
 
 void assertStatus(UA_StatusCode st);
 void createDigitalMethodArguments(UA_Argument *inputArgument, UA_Argument *outputArgument) ;
-UA_StatusCode TranslateBrowsePathToNodeIds(UA_Server* server, UA_NodeId* result, const unsigned long referenceTypeId, const UA_UInt16 target_qualifiedName_Ns, char * const target_qualifiedName, const UA_NodeId source_node);
+UA_StatusCode TranslateBrowsePathToNodeIds(UA_Server* server, 
+    UA_NodeId* result, 
+    const unsigned long referenceTypeId, 
+    const UA_UInt16 target_qualifiedName_Ns, 
+    char * const target_qualifiedName, 
+    const UA_NodeId source_node);
 
 #endif

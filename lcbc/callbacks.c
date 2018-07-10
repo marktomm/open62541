@@ -32,6 +32,107 @@ UA_StatusCode controlMethodCallbackDigital(UA_Server *server,
     } else { /// all ok
         UA_NodeId stateVarNodeId = UA_NODEID_NUMERIC(context->NameSpaceIndex, context->StateVarNodeId);
         UA_Byte stateNum = *inputByte;
+        
+        // check statenum for boundaries and set flags
+        UA_NodeId stateVarFlagsNodeId;
+        UA_NodeId stateVarAlarmLowNodeId;
+        UA_NodeId stateVarAlarmHighNodeId;
+        UA_StatusCode ret = TranslateBrowsePathToNodeIds(server, &stateVarAlarmLowNodeId, UA_NS0ID_HASPROPERTY, LCBC1_NAMESPACE, "AlarmLow", stateVarNodeId);
+        if(ret != UA_STATUSCODE_GOOD) {
+            LOG_ERROR("Unable to get AlarmLow Property for Variable ID %d", stateVarNodeId.identifier.numeric);
+            goto write_value;
+        } 
+
+        ret = TranslateBrowsePathToNodeIds(server, &stateVarAlarmHighNodeId, UA_NS0ID_HASPROPERTY, LCBC1_NAMESPACE, "AlarmHigh", stateVarNodeId);
+        if(ret != UA_STATUSCODE_GOOD) {
+            LOG_ERROR("Unable to get AlarmHigh Property for Variable ID %d", stateVarNodeId.identifier.numeric);
+            goto write_value;
+        } 
+
+        ret = TranslateBrowsePathToNodeIds(server, &stateVarFlagsNodeId, UA_NS0ID_HASPROPERTY, LCBC1_NAMESPACE, "Flags", stateVarNodeId);
+
+        if(ret != UA_STATUSCODE_GOOD) {
+            LOG_ERROR("Unable to get Flags Property for Variable ID %d", stateVarNodeId.identifier.numeric);
+        } else {
+            UA_Variant flagsValue;
+            UA_Variant alarmLowValue;
+            UA_Variant alarmHighValue;
+            // UA_Variant stateVarValue;
+
+            ret = UA_Server_readValue(server, stateVarFlagsNodeId, &flagsValue);
+            ret |= UA_Server_readValue(server, stateVarAlarmLowNodeId, &alarmLowValue);
+            ret |= UA_Server_readValue(server, stateVarAlarmHighNodeId, &alarmHighValue);
+            // ret |= UA_Server_readValue(server, stateVarNodeId, &stateVarValue);
+
+
+            if(ret != UA_STATUSCODE_GOOD) {
+                LOG_ERROR("Unable to read Property values");
+                goto write_value;
+            }
+
+            UA_UInt32 flags = *(UA_Byte*)(flagsValue.data);
+            UA_Double aLoDbl = *(UA_Double*)(alarmLowValue.data); int aLo = (int) aLoDbl;
+            UA_Double aHiDbl = *(UA_Double*)(alarmHighValue.data); int aHi = (int) aHiDbl;
+            UA_Byte value = stateNum;
+
+            UA_Byte boolSetFlags = 0;
+            UA_UInt32 flagsToSet = flags;
+
+            if(aLo != 0) {
+                LOG_INFO("Alarm low set to %d", aLo);
+                if(aLo >= value) {
+                    LOG_INFO("Value hit AlarmLow %d %d", aLo, value);
+                    if(flags & FLAG_ALO) {
+                        LOG_INFO("Flag is up for AlarmLow already");
+                    } else {
+                        LOG_INFO("Set flag for AlarmLow");
+                        boolSetFlags = 1;
+                        flagsToSet |= FLAG_ALO;
+                    }
+                } else {
+                    LOG_INFO("Value lower that AlarmLow threshold %d %d", aLo, value);
+                    if(flags & FLAG_ALO) {
+                        boolSetFlags = 1;
+                        flagsToSet = (flagsToSet & ~(1<<FLAG_ALO_BIT));
+                        LOG_INFO("Remove flag for AlarmLow. flags now %d", (int)flagsToSet);
+                    } else {
+                        LOG_INFO("AlarmLow not set already");
+                    }
+                }
+            }
+
+            if(aHi != 0) {
+                LOG_INFO("Alarm high set to %d", aHi);
+                if(aHi <= value) {
+                    LOG_INFO("Value hit AlarmHigh %d %d", aHi, value);
+                    if(flags & FLAG_AHI) {
+                        LOG_INFO("Flag is up for AlarmHigh already");
+                    } else {
+                        LOG_INFO("Set flag for AlarmHigh");
+                        boolSetFlags = 1;
+                        flagsToSet |= FLAG_AHI;
+                    }
+                } else {
+                    LOG_INFO("Value lower that AlarmHigh threshold %d %d", aHi, value);
+                    if(flags & FLAG_AHI) {
+                        boolSetFlags = 1;
+                        flagsToSet = (flagsToSet & ~(1<<FLAG_AHI_BIT));
+                        LOG_INFO("Remove flag for AlarmHigh. flags now %d", (int)flagsToSet);
+                    } else {
+                        LOG_INFO("AlarmHigh not set already");
+                    }
+                }
+            }  
+
+            if(boolSetFlags) {
+                UA_Variant flagsToSetVariant;
+                UA_Variant_init(&flagsToSetVariant);
+                UA_Variant_setScalar(&flagsToSetVariant, &flagsToSet, &UA_TYPES[UA_TYPES_UINT32]);
+                UA_Server_writeValue(server, stateVarFlagsNodeId, flagsToSetVariant);
+            }
+        }
+
+write_value: ;
 
         UA_Variant stateVal;
         UA_Variant_init(&stateVal);
@@ -65,6 +166,8 @@ UA_StatusCode controlMethodCallbackManual(UA_Server *server,
     } else { /// all ok
         UA_NodeId stateVarNodeId = UA_NODEID_NUMERIC(context->NameSpaceIndex, context->StateVarNodeId);
         UA_Byte stateNum = *inputByte;
+
+        // check statenum for boundaries and set flags
 
         UA_Variant stateVal;
         UA_Variant_init(&stateVal);

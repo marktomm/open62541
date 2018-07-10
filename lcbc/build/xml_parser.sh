@@ -68,3 +68,15 @@
     # aling xml parser output include with default insatll location
     sed -i 's/\(#include \).*$/\1 "open62541\/open62541.h"/' ${LCBC_ROOT}/gen/example.h
 }
+
+[[ -z ${CUSTOM_DATATYPE} ]] || {
+    # latest xml to code. xml is manualy composed. expect bugs
+    rm -v ${LCBC_ROOT}/gen/lcbc_model_v4*
+    python /usr/local/share/open62541/tools/nodeset_compiler/nodeset_compiler.py \
+    --types-array=UA_TYPES \
+    --existing /usr/local/include/open62541/deps/ua-nodeset/Schema/Opc.Ua.NodeSet2.xml \
+    --xml ${LCBC_ROOT}/xml/lcbc-model-v4.xml ${LCBC_ROOT}/gen/lcbc_model_v4
+
+    # aling xml parser output include with default insatll location
+    sed -i 's/\(#include \).*$/\1 "open62541\/open62541.h"/' ${LCBC_ROOT}/gen/lcbc_model_v4.h
+}

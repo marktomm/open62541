@@ -28,3 +28,10 @@
     rm -v ${LCBC_ROOT}/bin/lcbcServerExample
     gcc --std=c99 ${OPEN_OPC_ROOT}/build/open62541.c ${LCBC_ROOT}/lcbcServerExample.c ${LCBC_ROOT}/gen/example.c -o ${LCBC_ROOT}/bin/lcbcServerExample
 }
+
+[[ -z ${CUSTOM_DATATYPE} ]] || {
+    rm -v ${LCBC_ROOT}/bin/lcbcServer
+    gcc --std=c99 ${OPEN_OPC_ROOT}/build/open62541.c ${LCBC_ROOT}/lcbcServer.c  ${LCBC_ROOT}/constants.c  ${LCBC_ROOT}/callbacks.c  ${LCBC_ROOT}/add.c ${LCBC_ROOT}/manual_lcbc_model_v4.c ${LCBC_ROOT}/xtors.c -o ${LCBC_ROOT}/bin/lcbcServer
+    # rm -v ${LCBC_ROOT}/bin/client
+    # gcc --std=gnu99 -D_XOPEN_SOURCE ${OPEN_OPC_ROOT}/build/open62541.c ${LCBC_ROOT}/client.c  ${LCBC_ROOT}/constants.c -o ${LCBC_ROOT}/bin/client
+}

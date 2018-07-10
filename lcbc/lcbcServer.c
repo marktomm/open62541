@@ -1,4 +1,4 @@
-#include "gen/lcbc_single.h"
+#include "gen/lcbc_model_v4.h"
 
 #include <signal.h>
 #include <stdio.h>
@@ -13,8 +13,8 @@ nodeContextContainer* tctx;
 
 /// need to manually set method props for mock server
 #define MANOVERRIDE_METHOD_NODEID UA_NODEID_NUMERIC(LCBC1_NAMESPACE, ManualOverrideControl_ID)
-#define SIREN_METHOD_NODEID UA_NODEID_NUMERIC(LCBC1_NAMESPACE, 10)
-#define AO_METHOD_NODEID UA_NODEID_NUMERIC(LCBC1_NAMESPACE, 28)
+#define GUARD_METHOD_NODEID UA_NODEID_NUMERIC(LCBC1_NAMESPACE, 11)
+#define CLS_METHOD_NODEID UA_NODEID_NUMERIC(LCBC1_NAMESPACE, 14)
 
 #define F1_DIMM_METHOD_NODEID UA_NODEID_NUMERIC(LCBC1_NAMESPACE, F1_DimmControl_ID)
 #define F2_DIMM_METHOD_NODEID UA_NODEID_NUMERIC(LCBC1_NAMESPACE, F2_DimmControl_ID)
@@ -26,11 +26,12 @@ nodeContextContainer* tctx;
 
 #define METHOD_COUNT 9
 
-#define METHOD_TYPE "DO"
+#define METHOD_TYPE_DO "DO"
+#define METHOD_TYPE_AO "AO"
 
 #define GETMETHODSTART UA_NodeId n1 = MANOVERRIDE_METHOD_NODEID; \
-UA_NodeId n2 = SIREN_METHOD_NODEID; \
-UA_NodeId n3 = AO_METHOD_NODEID; \
+UA_NodeId n2 = GUARD_METHOD_NODEID; \
+UA_NodeId n3 = CLS_METHOD_NODEID; \
 UA_NodeId n4 = F1_DIMM_METHOD_NODEID; \
 UA_NodeId n5 = F2_DIMM_METHOD_NODEID; \
 UA_NodeId n6 = F3_DIMM_METHOD_NODEID; \
@@ -50,7 +51,7 @@ static char* getMethodFeederCtx(UA_NodeId id)
     } else if(UA_NodeId_equal(&id, &n2)) {
         return "DO_GRD";
     } else if(UA_NodeId_equal(&id, &n3)) {
-        return "";
+        return "AO_CLS";
     } else if(UA_NodeId_equal(&id, &n4) || UA_NodeId_equal(&id, &n5) || UA_NodeId_equal(&id, &n6)) {
         return "DO_FxD";
     } else if(UA_NodeId_equal(&id, &n7) || UA_NodeId_equal(&id, &n8) || UA_NodeId_equal(&id, &n9)) {
@@ -86,7 +87,7 @@ static UA_Int16 getMethodPos(UA_NodeId id)
     } else if(UA_NodeId_equal(&id, &n2)) {
         return 4;
     } else if(UA_NodeId_equal(&id, &n3)) {
-        return 0;
+        return 5;
     } else if(UA_NodeId_equal(&id, &n4)) {
         return 0;
     } else if(UA_NodeId_equal(&id, &n5)) {
@@ -99,6 +100,33 @@ static UA_Int16 getMethodPos(UA_NodeId id)
         return 0;
     } else if(UA_NodeId_equal(&id, &n9)) {
         return 0;
+    } 
+
+    return 0;
+}
+
+static UA_Int16 getMethodFeedbackId(UA_NodeId id)
+{
+    GETMETHODSTART
+    
+    if(UA_NodeId_equal(&id, &n1)) {
+        return 3;
+    } else if(UA_NodeId_equal(&id, &n2)) {
+        return 10;
+    } else if(UA_NodeId_equal(&id, &n3)) {
+        return 13;
+    } else if(UA_NodeId_equal(&id, &n4)) {
+        return 103;
+    } else if(UA_NodeId_equal(&id, &n5)) {
+        return 203;
+    } else if(UA_NodeId_equal(&id, &n6)) {
+        return 303;
+    } else if(UA_NodeId_equal(&id, &n7)) {
+        return 101;
+    } else if(UA_NodeId_equal(&id, &n8)) {
+        return 201;
+    } else if(UA_NodeId_equal(&id, &n9)) {
+        return 301;
     } 
 
     return 0;
@@ -149,7 +177,7 @@ static UA_StatusCode addMethodProps(UA_Server *server, UA_UInt16 ns, UA_NodeId* 
                                         *parentNodeId,
                                         UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),                                
                                         UA_QUALIFIEDNAME(ns, "FeederIdx"),
-                                        UA_NODEID_NUMERIC(0, 68), /// 68 must be variable typedef for prop
+                                        UA_NODEID_NUMERIC(0, UA_NS0ID_PROPERTYTYPE),
                                         (const UA_VariableAttributes)attr, NULL, NULL);
         /// add FeederIdx x
     }
@@ -162,7 +190,7 @@ static UA_StatusCode addMethodProps(UA_Server *server, UA_UInt16 ns, UA_NodeId* 
         attr.accessLevel = 3;
         attr.valueRank = -1;
         attr.dataType = UA_NODEID_NUMERIC(0, 4); /// Int16
-        UA_UInt16 pos = getMethodPos(*parentNodeId);
+        UA_Int16 pos = getMethodPos(*parentNodeId);
         UA_Variant_setScalar(&attr.value, &pos, &UA_TYPES[UA_TYPES_INT16]);
         attr.displayName = UA_LOCALIZEDTEXT("", "Pos");
         attr.description = UA_LOCALIZEDTEXT("", "");
@@ -172,7 +200,7 @@ static UA_StatusCode addMethodProps(UA_Server *server, UA_UInt16 ns, UA_NodeId* 
                                         *parentNodeId,
                                         UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),                                
                                         UA_QUALIFIEDNAME(ns, "Pos"),
-                                        UA_NODEID_NUMERIC(0, 68), /// 68 must be variable typedef for prop
+                                        UA_NODEID_NUMERIC(0, UA_NS0ID_PROPERTYTYPE),
                                         (const UA_VariableAttributes)attr, NULL, NULL);
         /// add Pos x
     }
@@ -185,7 +213,11 @@ static UA_StatusCode addMethodProps(UA_Server *server, UA_UInt16 ns, UA_NodeId* 
         attr.accessLevel = 3;
         attr.valueRank = -1;
         attr.dataType = UA_NODEID_NUMERIC(0, 12); /// String
-        UA_String type = UA_STRING(METHOD_TYPE);
+        UA_String type = UA_STRING(METHOD_TYPE_DO);
+        UA_NodeId ao_method = CLS_METHOD_NODEID;
+        if(UA_NodeId_equal(parentNodeId, &ao_method)) {
+            type = UA_STRING(METHOD_TYPE_AO);
+        }
         retVal |=  UA_Variant_setScalarCopy(&attr.value, &type, &UA_TYPES[UA_TYPES_STRING]);
         attr.displayName = UA_LOCALIZEDTEXT("", "Type");
         attr.description = UA_LOCALIZEDTEXT("", "");
@@ -195,9 +227,33 @@ static UA_StatusCode addMethodProps(UA_Server *server, UA_UInt16 ns, UA_NodeId* 
                                         *parentNodeId,
                                         UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),                                
                                         UA_QUALIFIEDNAME(ns, "Type"),
-                                        UA_NODEID_NUMERIC(0, 68), /// 68 must be variable typedef for prop
+                                        UA_NODEID_NUMERIC(0, UA_NS0ID_PROPERTYTYPE),
                                         (const UA_VariableAttributes)attr, NULL, NULL);
         /// add Type x
+    }
+
+    // v4 - add FeedbackId
+    {
+        /// add FeedbackId
+        UA_VariableAttributes attr = UA_VariableAttributes_default;
+        attr.minimumSamplingInterval = 0.000000;
+        attr.userAccessLevel = 3;
+        attr.accessLevel = 3;
+        attr.valueRank = -1;
+        attr.dataType = UA_NODEID_NUMERIC(0, UA_NS0ID_UINT32); 
+        UA_UInt32 feedback_id = getMethodFeedbackId(*parentNodeId);
+        UA_Variant_setScalar(&attr.value, &feedback_id, &UA_TYPES[UA_TYPES_UINT32]);
+        attr.displayName = UA_LOCALIZEDTEXT("", "FeedbackId");
+        attr.description = UA_LOCALIZEDTEXT("", "");
+        attr.writeMask = 0;
+        attr.userWriteMask = 0;
+        retVal |= UA_Server_addVariableNode(server, UA_NODEID_NULL,
+                                        *parentNodeId,
+                                        UA_NODEID_NUMERIC(0, UA_NS0ID_HASCOMPONENT),                                
+                                        UA_QUALIFIEDNAME(ns, "FeedbackId"),
+                                        UA_NODEID_NUMERIC(0, UA_NS0ID_PROPERTYTYPE),
+                                        (const UA_VariableAttributes)attr, NULL, NULL);
+        /// add FeedbackId x
     }
 
     if(retVal != UA_STATUSCODE_GOOD) {
@@ -247,8 +303,7 @@ int main(void)
     assertStatus(Add_Variable_ToServer(server, &ruleDiagnosticsEntry_Type_NodeId, "browsename", "displayname", &varToInspectNodeId)); /// call own method to add Variable to Server Object
 #else
     UA_Server *server = UA_Server_new(config);
-
-    assertStatus(lcbc_single(server));
+    assertStatus(lcbc_model_v4(server));
     assertStatus(Add_RulesObject_TypeDef(server, LCBC1_NAMESPACE)); 
     assertStatus(Add_RuleDiagnostisEntry_TypeDef(server, LCBC1_NAMESPACE));
 
@@ -264,6 +319,7 @@ int main(void)
 #endif
      
     UA_StatusCode retval = UA_Server_run(server, &running);
+    LOG_INFO("passed this6");
     UA_Server_delete(server);
     UA_ServerConfig_delete(config);
     return (int)retval;
