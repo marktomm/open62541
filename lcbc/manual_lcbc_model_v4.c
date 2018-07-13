@@ -11487,7 +11487,7 @@ attr.writeMask = 0;
 attr.userWriteMask = 0;
 retVal |= UA_Server_addNode_begin(server, UA_NODECLASS_VARIABLE,
 UA_NODEID_NUMERIC(ns[1], 6989),
-UA_NODEID_NUMERIC(ns[1], 1004),
+UA_NODEID_NUMERIC(ns[1], 1003),
 UA_NODEID_NUMERIC(ns[0], 46),
 UA_QUALIFIEDNAME(ns[1], "Latitude"),
 UA_NODEID_NUMERIC(ns[0], 68),
@@ -15574,7 +15574,7 @@ attr.writeMask = 0;
 attr.userWriteMask = 0;
 retVal |= UA_Server_addNode_begin(server, UA_NODECLASS_VARIABLE,
 UA_NODEID_NUMERIC(ns[1], 6988),
-UA_NODEID_NUMERIC(ns[1], 1004),
+UA_NODEID_NUMERIC(ns[1], 1003),
 UA_NODEID_NUMERIC(ns[0], 46),
 UA_QUALIFIEDNAME(ns[1], "Longitude"),
 UA_NODEID_NUMERIC(ns[0], 68),
@@ -26388,7 +26388,7 @@ attr.writeMask = 0;
 attr.userWriteMask = 0;
 retVal |= UA_Server_addNode_begin(server, UA_NODECLASS_VARIABLE,
 UA_NODEID_NUMERIC(ns[1], 6987),
-UA_NODEID_NUMERIC(ns[1], 1004),
+UA_NODEID_NUMERIC(ns[1], 1003),
 UA_NODEID_NUMERIC(ns[0], 46),
 UA_QUALIFIEDNAME(ns[1], "ControllerId"),
 UA_NODEID_NUMERIC(ns[0], 68),
@@ -38250,72 +38250,27 @@ UA_NODEID_NUMERIC(ns[1], 6901)
 static UA_StatusCode function_lcbc_model_v4_1039_begin(UA_Server *server, UA_UInt16* ns) {
 
 UA_StatusCode retVal = UA_STATUSCODE_GOOD;
-UA_VariableAttributes attr = UA_VariableAttributes_default;
-attr.minimumSamplingInterval = 0.000000;
-attr.userAccessLevel = 3;
-attr.accessLevel = 3;
-attr.valueRank = -1;
-attr.dataType = UA_NODEID_NUMERIC(ns[0], 12);
-UA_String *variablenode_ns_1_i_6990_variant_DataContents =  UA_String_new();
-*variablenode_ns_1_i_6990_variant_DataContents = UA_STRING_ALLOC("2999");
-UA_Variant_setScalar(&attr.value, variablenode_ns_1_i_6990_variant_DataContents, &UA_TYPES[UA_TYPES_STRING]);
-attr.displayName = UA_LOCALIZEDTEXT("", "ControllerId");
-attr.description = UA_LOCALIZEDTEXT("", "");
-attr.writeMask = 0;
-attr.userWriteMask = 0;
-retVal |= UA_Server_addNode_begin(server, UA_NODECLASS_VARIABLE,
-UA_NODEID_NUMERIC(ns[1], 6990),
-UA_NODEID_NUMERIC(ns[1], 50000),
-UA_NODEID_NUMERIC(ns[0], 46),
-UA_QUALIFIEDNAME(ns[1], "ControllerId"),
-UA_NODEID_NUMERIC(ns[0], 68),
-(const UA_NodeAttributes*)&attr, &UA_TYPES[UA_TYPES_VARIABLEATTRIBUTES],NULL, NULL);
-UA_String_delete(variablenode_ns_1_i_6990_variant_DataContents);
 return retVal;
 }
 
 static UA_StatusCode function_lcbc_model_v4_1039_finish(UA_Server *server, UA_UInt16* ns) {
 
-return UA_Server_addNode_finish(server, 
-UA_NODEID_NUMERIC(ns[1], 6990)
-);
+UA_StatusCode retVal = UA_STATUSCODE_GOOD;
+return retVal;
 }
 
 
 /* Longitude - ns=1;i=6991 */
 
 static UA_StatusCode function_lcbc_model_v4_1040_begin(UA_Server *server, UA_UInt16* ns) {
-
 UA_StatusCode retVal = UA_STATUSCODE_GOOD;
-UA_VariableAttributes attr = UA_VariableAttributes_default;
-attr.minimumSamplingInterval = 0.000000;
-attr.userAccessLevel = 3;
-attr.accessLevel = 3;
-attr.valueRank = -1;
-attr.dataType = UA_NODEID_NUMERIC(ns[0], 12);
-UA_String *variablenode_ns_1_i_6991_variant_DataContents =  UA_String_new();
-*variablenode_ns_1_i_6991_variant_DataContents = UA_STRING_ALLOC("20");
-UA_Variant_setScalar(&attr.value, variablenode_ns_1_i_6991_variant_DataContents, &UA_TYPES[UA_TYPES_STRING]);
-attr.displayName = UA_LOCALIZEDTEXT("", "Longitude");
-attr.description = UA_LOCALIZEDTEXT("", "");
-attr.writeMask = 0;
-attr.userWriteMask = 0;
-retVal |= UA_Server_addNode_begin(server, UA_NODECLASS_VARIABLE,
-UA_NODEID_NUMERIC(ns[1], 6991),
-UA_NODEID_NUMERIC(ns[1], 50000),
-UA_NODEID_NUMERIC(ns[0], 46),
-UA_QUALIFIEDNAME(ns[1], "Longitude"),
-UA_NODEID_NUMERIC(ns[0], 68),
-(const UA_NodeAttributes*)&attr, &UA_TYPES[UA_TYPES_VARIABLEATTRIBUTES],NULL, NULL);
-UA_String_delete(variablenode_ns_1_i_6991_variant_DataContents);
 return retVal;
 }
 
 static UA_StatusCode function_lcbc_model_v4_1040_finish(UA_Server *server, UA_UInt16* ns) {
 
-return UA_Server_addNode_finish(server, 
-UA_NODEID_NUMERIC(ns[1], 6991)
-);
+UA_StatusCode retVal = UA_STATUSCODE_GOOD;
+return retVal;
 }
 
 
@@ -38324,35 +38279,13 @@ UA_NODEID_NUMERIC(ns[1], 6991)
 static UA_StatusCode function_lcbc_model_v4_1041_begin(UA_Server *server, UA_UInt16* ns) {
 
 UA_StatusCode retVal = UA_STATUSCODE_GOOD;
-UA_VariableAttributes attr = UA_VariableAttributes_default;
-attr.minimumSamplingInterval = 0.000000;
-attr.userAccessLevel = 3;
-attr.accessLevel = 3;
-attr.valueRank = -1;
-attr.dataType = UA_NODEID_NUMERIC(ns[0], 12);
-UA_String *variablenode_ns_1_i_6992_variant_DataContents =  UA_String_new();
-*variablenode_ns_1_i_6992_variant_DataContents = UA_STRING_ALLOC("10");
-UA_Variant_setScalar(&attr.value, variablenode_ns_1_i_6992_variant_DataContents, &UA_TYPES[UA_TYPES_STRING]);
-attr.displayName = UA_LOCALIZEDTEXT("", "Latitude");
-attr.description = UA_LOCALIZEDTEXT("", "");
-attr.writeMask = 0;
-attr.userWriteMask = 0;
-retVal |= UA_Server_addNode_begin(server, UA_NODECLASS_VARIABLE,
-UA_NODEID_NUMERIC(ns[1], 6992),
-UA_NODEID_NUMERIC(ns[1], 50000),
-UA_NODEID_NUMERIC(ns[0], 46),
-UA_QUALIFIEDNAME(ns[1], "Latitude"),
-UA_NODEID_NUMERIC(ns[0], 68),
-(const UA_NodeAttributes*)&attr, &UA_TYPES[UA_TYPES_VARIABLEATTRIBUTES],NULL, NULL);
-UA_String_delete(variablenode_ns_1_i_6992_variant_DataContents);
 return retVal;
 }
 
 static UA_StatusCode function_lcbc_model_v4_1041_finish(UA_Server *server, UA_UInt16* ns) {
 
-return UA_Server_addNode_finish(server, 
-UA_NODEID_NUMERIC(ns[1], 6992)
-);
+UA_StatusCode retVal = UA_STATUSCODE_GOOD;
+return retVal;
 }
 
 

@@ -93,7 +93,7 @@ UA_StatusCode controlMethodCallbackDigital(UA_Server *server,
                     LOG_INFO("Value lower that AlarmLow threshold %d %d", aLo, value);
                     if(flags & FLAG_ALO) {
                         boolSetFlags = 1;
-                        flagsToSet = (flagsToSet & ~(1<<FLAG_ALO_BIT));
+                        flagsToSet = flagsToSet & ~FLAG_ALO;
                         LOG_INFO("Remove flag for AlarmLow. flags now %d", (int)flagsToSet);
                     } else {
                         LOG_INFO("AlarmLow not set already");
@@ -116,7 +116,7 @@ UA_StatusCode controlMethodCallbackDigital(UA_Server *server,
                     LOG_INFO("Value lower that AlarmHigh threshold %d %d", aHi, value);
                     if(flags & FLAG_AHI) {
                         boolSetFlags = 1;
-                        flagsToSet = (flagsToSet & ~(1<<FLAG_AHI_BIT));
+                        flagsToSet = flagsToSet & ~FLAG_AHI;
                         LOG_INFO("Remove flag for AlarmHigh. flags now %d", (int)flagsToSet);
                     } else {
                         LOG_INFO("AlarmHigh not set already");
